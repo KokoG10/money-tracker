@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="₹ Tracker">
+<title>₹ Tracker · Koko & Vijaya</title>
+<style>
+:root {
+  --bg:#0F0F0E;--s1:#1A1A18;--s2:#222220;--s3:#2A2A28;
+  --b1:#2E2E2B;--b2:#3A3A37;
+  --ink:#F0EDE8;--ink2:#A8A49E;--ink3:#5A5855;
+  --red:#E05252;--redd:#2A1010;--redb:#4A1C1C;
+  --amb:#E0922A;--ambd:#2A1A08;--ambb:#4A2E10;
+  --grn:#4CAF78;--grnd:#0A2016;--grnb:#183A28;
+  --blu:#5A9AE0;--blud:#0C1828;--blub:#1A3258;
+  --pur:#9A7AE0;--purd:#160E2A;--purb:#2A1E50;
+  --r:10px;--rl:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;display:flex;flex-direction:column}
+
+/* LOCK SCREEN */
+#lock{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+#lock .lock-icon{font-size:48px;margin-bottom:8px}
+#lock h2{font-size:20px;font-weight:500;color:var(--ink)}
+#lock p{font-size:13px;color:var(--ink3);text-align:center;max-width:260px;line-height:1.6}
+#lock input{width:220px;font-size:18px;padding:12px 16px;border:1px solid var(--b2);border-radius:var(--rl);background:var(--s2);color:var(--ink);text-align:center;letter-spacing:.3em}
+#lock input:focus{outline:none;border-color:var(--grn)}
+#lock .lock-btn{width:220px;padding:13px;background:var(--grn);color:#0A2016;border:none;border-radius:var(--rl);font-size:15px;font-weight:700;cursor:pointer}
+#lock .lock-err{color:var(--red);font-size:13px;height:18px}
+#lock .set-pw{font-size:12px;color:var(--ink3);cursor:pointer;text-decoration:underline;margin-top:4px}
+
+/* MAIN APP */
+#app{display:flex;flex-direction:column;height:100%;display:none}
+
+/* TOP BAR */
+.topbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-brand{font-family:monospace;font-size:13px;color:var(--grn);letter-spacing:.05em}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lock-btn-small{background:none;border:1px solid var(--b2);color:var(--ink3);font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer}
+
+/* SCROLL AREA */
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 20px}
+
+/* BOTTOM NAV */
+.bnav{background:var(--s1);border-top:1px solid var(--b1);display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px 8px;cursor:pointer;border:none;background:none;color:var(--ink3);font-size:9px;font-family:inherit;transition:color .15s;min-width:0}
+.bnav-tab svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.5;fill:none;flex-shrink:0}
+.bnav-tab.on{color:var(--grn)}
+
+/* PANELS */
+.pnl{display:none}.pnl.on{display:block}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px}
+.card-title{font-family:monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{background:var(--s2);border-radius:var(--r);padding:12px}
+.stat .sl{font-family:monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.stat .sv{font-family:monospace;font-size:16px;font-weight:500}
+.stat .ss{font-size:10px;color:var(--ink3);margin-top:3px}
+
+/* COLORS */
+.cr{color:var(--red)}.cg{color:var(--grn)}.ca{color:var(--amb)}.cb{color:var(--blu)}.cp{color:var(--pur)}
+
+/* PROGRESS */
+.pb{height:7px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:5px}
+.pb-f{height:100%;border-radius:4px;transition:width .4s}
+
+/* ROWS */
+.row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--b1);gap:8px;font-size:13px}
+.row:last-child{border-bottom:none}
+.row-name{flex:1;color:var(--ink2)}
+.row-val{font-family:monospace;font-size:13px;font-weight:500}
+
+/* ALERT */
+.alert{border-left:3px solid;padding:10px 12px;border-radius:0 var(--r) var(--r) 0;margin-bottom:10px;font-size:12px;line-height:1.7}
+.ag{border-color:var(--grn);background:var(--grnd);color:#8AFFA8}
+.aa{border-color:var(--amb);background:var(--ambd);color:#FFD08A}
+.ar{border-color:var(--red);background:var(--redd);color:#FFA8A8}
+.ab{border-color:var(--blu);background:var(--blud);color:#A8C8FF}
+
+/* FORMS */
+.finput{font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--b1);border-radius:var(--r);background:var(--s2);color:var(--ink);width:100%}
+.finput:focus{outline:none;border-color:var(--grn)}
+.finput::placeholder{color:var(--ink3)}
+.btn{font-family:inherit;font-size:13px;padding:9px 16px;border-radius:var(--r);cursor:pointer;border:none;font-weight:600}
+.btn-g{background:var(--grn);color:#0A2016}
+.btn-s{background:var(--s3);color:var(--ink2);border:1px solid var(--b2)}
+.btn-r{background:var(--redd);color:var(--red);border:1px solid var(--redb)}
+select.finput option{background:var(--s1)}
+
+/* NET WORTH ROWS - editable */
+.nw-item{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--b1);gap:8px}
+.nw-item:last-child{border-bottom:none}
+.nw-name{flex:1;font-size:13px;color:var(--ink2);background:none;border:none;color:var(--ink2);min-width:0}
+.nw-name:focus{outline:none;color:var(--ink)}
+.nw-val{font-family:monospace;font-size:13px;font-weight:500;width:110px;text-align:right;background:none;border:1px solid transparent;border-radius:6px;padding:3px 6px;color:inherit;transition:all .15s}
+.nw-val:focus{outline:none;border-color:var(--grn);background:var(--s2)}
+.nw-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:16px;padding:0 2px;line-height:1;opacity:0;transition:opacity .15s}
+.nw-item:hover .nw-del,.nw-item:active .nw-del{opacity:1}
+.nw-section{font-family:monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:10px 0 6px;border-bottom:1px solid var(--b2)}
+
+/* EXPENSE LOG */
+.exp-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b1);font-size:13px;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.exp-item:last-child{border-bottom:none}
+.ei-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ei-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ei-meta{font-size:10px;color:var(--ink3);white-space:nowrap}
+.ei-amt{font-family:monospace;font-weight:500;white-space:nowrap}
+.ei-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:14px;flex-shrink:0}
+
+/* AI CHAT */
+.chat-wrap{display:flex;flex-direction:column;gap:10px}
+.chat-msg{padding:10px 12px;border-radius:var(--rl);font-size:13px;line-height:1.7;max-width:90%}
+.chat-user{background:var(--s3);align-self:flex-end;color:var(--ink)}
+.chat-ai{background:var(--grnb);border:1px solid var(--grn);border-opacity:.3;align-self:flex-start;color:#C0FFD0}
+.chat-typing{background:var(--s2);align-self:flex-start;color:var(--ink3);font-style:italic}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--b1);background:var(--s1);flex-shrink:0}
+.chat-input-row input{flex:1;font-family:inherit;font-size:13px;padding:10px 12px;border:1px solid var(--b2);border-radius:20px;background:var(--s2);color:var(--ink)}
+.chat-input-row input:focus{outline:none;border-color:var(--grn)}
+.chat-send{background:var(--grn);color:#0A2016;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+
+/* MONTH PILLS */
+.mpills{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.mpill{font-family:monospace;font-size:10px;padding:5px 11px;border-radius:20px;cursor:pointer;border:1px solid var(--b2);background:none;color:var(--ink3);white-space:nowrap;flex-shrink:0}
+.mpill.on{background:var(--grnd);color:var(--grn);border-color:var(--grnb)}
+
+/* ADD ROW */
+.add-row{display:flex;gap:8px;margin-top:10px}
+
+/* TIMELINE */
+.tl-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--b1);align-items:flex-start}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:1.5px solid}
+.tl-body .tp{font-family:monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px}
+.tl-body .te{font-weight:500;font-size:13px;margin-bottom:3px}
+.tl-body .td{font-size:12px;color:var(--ink2);line-height:1.6}
+.pill{font-family:monospace;font-size:10px;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+
+/* MISC */
+.sep{height:1px;background:var(--b2);margin:12px 0}
+.small-label{font-family:monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:5px}
+</style>
+</head>
+<body>
+
+<!-- ══ LOCK SCREEN ══ -->
+<div id="lock">
+  <div class="lock-icon">🔒</div>
+  <h2>Money Tracker</h2>
+  <p id="lock-msg">Enter your PIN to access your financial dashboard</p>
+  <input type="password" id="pin-input" maxlength="6" placeholder="• • • • • •" onkeydown="if(event.key==='Enter')unlock()">
+  <div class="lock-err" id="lock-err"></div>
+  <button class="lock-btn" onclick="unlock()">Unlock</button>
+  <span class="set-pw" onclick="showSetPin()">Change PIN</span>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">₹ tracker</div>
+    <div class="topbar-right">
+      <span id="topbar-month" style="font-size:12px;color:var(--ink3)"></span>
+      <button class="lock-btn-small" onclick="lockApp()">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div class="scroll-area" id="scroll-area">
+    <!-- DASHBOARD -->
+    <div id="pnl-dash" class="pnl on">
+      <div class="sgrid" id="dash-stats"></div>
+      <div class="card" id="dash-nw-card">
+        <div class="card-title">Net worth snapshot</div>
+        <div id="dash-nw"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Lifestyle spending — <span id="dash-month-lbl"></span></div>
+        <div id="dash-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Bajaj OD progress</div>
+        <div id="dash-bajaj"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Monthly allocation</div>
+        <div id="dash-alloc"></div>
+      </div>
+    </div>
+
+    <!-- LOG EXPENSES -->
+    <div id="pnl-log" class="pnl">
+      <div class="mpills" id="log-months"></div>
+      <div class="card">
+        <div class="card-title">Add expense</div>
+        <div style="display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px">
+          <input class="finput" id="l-name" placeholder="What did you spend on?">
+          <input class="finput" type="number" id="l-amt" placeholder="₹">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 60px;gap:8px">
+          <select class="finput" id="l-cat"></select>
+          <button class="btn btn-g" onclick="addExp()">Add</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Expenses <span id="log-month-lbl" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px"></span></div>
+        <div id="exp-list"></div>
+        <div id="exp-empty" style="text-align:center;padding:20px;color:var(--ink3);font-size:13px">Nothing logged yet</div>
+        <div class="row" style="border-top:1px solid var(--b2);margin-top:8px" id="exp-total-row">
+          <span class="row-name" style="font-weight:600">Total</span>
+          <span class="row-val" id="exp-total">₹0</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">By category</div>
+        <div id="log-bars"></div>
+      </div>
+    </div>
+
+    <!-- NET WORTH -->
+    <div id="pnl-networth" class="pnl">
+      <div class="alert ab" style="margin-bottom:12px">Tap any name or amount to edit. Changes update your dashboard and milestones instantly.</div>
+      <div class="sgrid" id="nw-summary-stats"></div>
+      <div class="card">
+        <div class="card-title">Assets</div>
+        <div id="nw-assets-list"></div>
+        <div class="add-row">
+          <input class="finput" id="na-name" placeholder="Asset name (e.g. PPF)">
+          <input class="finput" type="number" id="na-amt" placeholder="₹" style="width:100px">
+          <button class="btn btn-g" onclick="addNwItem('asset')">+</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Liabilities</div>
+        <div id="nw-liab-list"></div>
+        <div class="add-row">
+          <input class="finput" id="nl-name" placeholder="Liability name">
+          <input class="finput" type="number" id="nl-amt" placeholder="₹" style="width:100px">
+          <button class="btn btn-g" onclick="addNwItem('liab')">+</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Net worth = assets − liabilities</div>
+        <div id="nw-total-display"></div>
+      </div>
+    </div>
+
+    <!-- PLAN & MILESTONES -->
+    <div id="pnl-plan" class="pnl">
+      <div class="sgrid" id="plan-stats"></div>
+      <div class="card">
+        <div class="card-title">Budget setup — tap to edit</div>
+        <div class="row"><span class="row-name">Monthly income</span><input class="finput" type="number" id="p-income" style="width:120px;text-align:right;font-family:monospace;font-weight:500;color:var(--grn)" oninput="S.income=+this.value;saveS();renderAll()"></div>
+        <div class="row"><span class="row-name">Bajaj OD payment/month</span><input class="finput" type="number" id="p-bajpmt" style="width:120px;text-align:right;font-family:monospace;font-weight:500;color:var(--amb)" oninput="S.bajajPmt=+this.value;saveS();renderAll()"></div>
+        <div class="row"><span class="row-name">SIP / Emergency MF</span><input class="finput" type="number" id="p-sip" style="width:120px;text-align:right;font-family:monospace;font-weight:500;color:var(--grn)" oninput="S.sip=+this.value;saveS();renderAll()"></div>
+        <div class="row"><span class="row-name">Bajaj OD rate (%)</span><input class="finput" type="number" id="p-rate" style="width:120px;text-align:right;font-family:monospace;font-weight:500;color:var(--red)" oninput="S.bajajRate=+this.value;saveS();renderAll()"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Milestones</div>
+        <div id="plan-timeline"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Surplus & bonus rules</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.8">
+          <div style="margin-bottom:8px"><span style="color:var(--grn);font-weight:500">Emergency &lt; ₹5L:</span> 100% of surplus → liquid MF</div>
+          <div style="margin-bottom:8px"><span style="color:var(--amb);font-weight:500">Emergency ₹5L–₹20L:</span> 60% emergency · 40% extra Bajaj OD</div>
+          <div style="margin-bottom:8px"><span style="color:var(--blu);font-weight:500">Bonus windfall:</span> First ₹1L emergency · Next ₹2L Bajaj · Rest 50/50</div>
+          <div style="margin-bottom:8px"><span style="color:var(--pur);font-weight:500">Salary hike (Feb):</span> 100% increment to emergency until ₹5L, then 50/50</div>
+          <div><span style="color:var(--grn);font-weight:500">Post Bajaj cleared:</span> Freed ₹/month → emergency MF → FIRE SIP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI ADVISOR (panel only — chat input is separate) -->
+    <div id="pnl-ai" class="pnl">
+      <div class="alert ab" style="margin-bottom:12px">Your AI advisor knows your budget, expenses, Bajaj OD balance, and financial goals. Ask anything.</div>
+      <div id="chat-wrap" class="chat-wrap" style="min-height:200px"></div>
+      <div style="height:80px"></div>
+    </div>
+  </div>
+
+  <!-- AI CHAT INPUT (only visible on AI tab) -->
+  <div class="chat-input-row" id="chat-input-row" style="display:none">
+    <input id="chat-input" placeholder="Ask your financial advisor..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">↑</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="bnav-tab on" onclick="goTab('dash')" id="nav-dash">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="bnav-tab" onclick="goTab('log')" id="nav-log">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log
+    </button>
+    <button class="bnav-tab" onclick="goTab('networth')" id="nav-networth">
+      <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Net Worth
+    </button>
+    <button class="bnav-tab" onclick="goTab('plan')" id="nav-plan">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Plan
+    </button>
+    <button class="bnav-tab" onclick="goTab('ai')" id="nav-ai">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Advisor
+    </button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// STATE & PERSISTENCE
+// ════════════════════════════════
+const KEY = 'mkv3';
+const PINKEY = 'mkpin';
+const MONTHS = ['May 26','Jun 26','Jul 26','Aug 26','Sep 26','Oct 26','Nov 26','Dec 26','Jan 27','Feb 27','Mar 27','Apr 27','May 27','Jun 27','Jul 27','Aug 27','Sep 27','Oct 27','Nov 27','Dec 27'];
+const MONTHS_LONG = ['May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026','Jan 2027','Feb 2027','Mar 2027','Apr 2027','May 2027','Jun 2027','Jul 2027','Aug 2027','Sep 2027','Oct 2027','Nov 2027','Dec 2027'];
+
+const DEF = {
+  income:500000, bajajPmt:145000, sip:45000, bajajRate:27,
+  currentMonth:0,
+  cats:[
+    {id:1,name:'Grocery',emoji:'🛒',budget:18000,color:'#E0922A'},
+    {id:2,name:'Eating Out',emoji:'🍽️',budget:15000,color:'#E05252'},
+    {id:3,name:'Fuel',emoji:'⛽',budget:15000,color:'#5A9AE0'},
+    {id:4,name:'Entertainment',emoji:'🎬',budget:5000,color:'#9A7AE0'},
+    {id:5,name:'Grooming',emoji:'💇',budget:2000,color:'#4CAF78'},
+    {id:6,name:'Subscriptions',emoji:'📱',budget:3000,color:'#5A9AE0'},
+    {id:7,name:'Puja',emoji:'🙏',budget:4000,color:'#E0922A'},
+    {id:8,name:'Shopping',emoji:'🛍️',budget:5000,color:'#E05252'},
+    {id:9,name:'Misc',emoji:'📦',budget:3478,color:'#888'},
+  ],
+  fixed:[
+    {id:1,name:'Rent',amt:88000},{id:2,name:'Car EMI 1',amt:10789},
+    {id:3,name:'Car EMI 2',amt:31665},{id:4,name:'Insurance',amt:20000},
+    {id:5,name:'Maid + staff',amt:22200},{id:6,name:'Japa / Nanny',amt:35000},
+    {id:7,name:'Baby account',amt:50000},{id:8,name:'Koko education',amt:5068},
+    {id:9,name:'Parents',amt:10000},{id:10,name:'Provision',amt:10000},{id:11,name:'Phone',amt:1800},
+  ],
+  expenses:{},
+  assets:[
+    {id:1,name:'MF Investments (Vijaya)',amt:315065,note:''},
+    {id:2,name:'MF Investments (Koko - Zerodha)',amt:307380,note:''},
+    {id:3,name:'Gold investments',amt:0,note:''},
+    {id:4,name:'Cash in hand',amt:100000,note:'Emergency seed'},
+    {id:5,name:'HDFC Savings (Vijaya)',amt:277696,note:''},
+    {id:6,name:'ICICI (Vijaya)',amt:63930,note:''},
+    {id:7,name:'AXIS (Koko)',amt:75787,note:''},
+    {id:8,name:'Joint AXIS',amt:60172,note:''},
+    {id:9,name:'IndusInd (Koko)',amt:78834,note:''},
+    {id:10,name:'FD Vijaya',amt:33269,note:''},
+    {id:11,name:'Crypto',amt:25906,note:''},
+    {id:12,name:'Family receivables',amt:0,note:''},
+  ],
+  liabilities:[
+    {id:1,name:'Bajaj Finance OD',amt:2296272,note:'27% p.a. — kill first'},
+    {id:2,name:'Car Loan 1 (ends Oct 2027)',amt:330000,note:'~9%'},
+    {id:3,name:'Car Loan 2 (ends 2029)',amt:1684776,note:'~9%'},
+    {id:4,name:'CC Outstanding (HDFC Vijaya)',amt:81107,note:'42%'},
+    {id:5,name:'CC Outstanding (AXIS Koko)',amt:77719,note:'36%'},
+    {id:6,name:'CC Outstanding (AMEX Koko)',amt:47008,note:'36%'},
+    {id:7,name:'CC Outstanding (IndusInd)',amt:65129,note:'42%'},
+    {id:8,name:'Personal Loan (AXIS)',amt:136037,note:'14%'},
+    {id:9,name:'Family debt',amt:0,note:''},
+    {id:10,name:'Other loans',amt:0,note:''},
+  ],
+  chatHistory:[],
+};
+
+let S = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || JSON.parse(JSON.stringify(DEF)); } catch { return JSON.parse(JSON.stringify(DEF)); }})();
+function saveS(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch{} }
+
+// ════════════════════════════════
+// LOCK SYSTEM
+// ════════════════════════════════
+function unlock(){
+  const pin = document.getElementById('pin-input').value;
+  const stored = localStorage.getItem(PINKEY) || '1234';
+  if(pin === stored){
+    document.getElementById('lock').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('lock-err').textContent = '';
+    renderAll();
+  } else {
+    document.getElementById('lock-err').textContent = 'Wrong PIN. Try again.';
+    document.getElementById('pin-input').value = '';
+  }
+}
+function lockApp(){
+  document.getElementById('lock').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('lock-msg').textContent = 'Enter your PIN to access your financial dashboard';
+}
+function showSetPin(){
+  const current = prompt('Current PIN (default: 1234):');
+  if(current !== (localStorage.getItem(PINKEY)||'1234')){ alert('Wrong PIN'); return; }
+  const np = prompt('New PIN (4-6 digits):');
+  if(!np || !/^\d{4,6}$/.test(np)){ alert('PIN must be 4-6 digits'); return; }
+  const np2 = prompt('Confirm new PIN:');
+  if(np !== np2){ alert('PINs do not match'); return; }
+  localStorage.setItem(PINKEY, np);
+  alert('PIN updated!');
+}
+document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') unlock(); });
+
+// ════════════════════════════════
+// HELPERS
+// ════════════════════════════════
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const pAmt = s => parseFloat(String(s).replace(/[₹,\s]/g,'')) || 0;
+function bajajSim(bal, rate, pmt){
+  let b=bal, m=0, ti=0, sched=[];
+  const r=rate/100/12;
+  while(b>0.01 && m<120){
+    m++; const int=b*r; ti+=int; b=Math.max(0,b+int-pmt);
+    const d=new Date(2026,4,1); d.setMonth(d.getMonth()+m-1);
+    sched.push({m,bal:b,interest:int,date:d.toLocaleDateString('en-IN',{month:'short',year:'numeric'})});
+  }
+  const cd=new Date(2026,4,1); cd.setMonth(cd.getMonth()+m-1);
+  return {months:m, totalInt:ti, sched, clearedDate:m<120?cd.toLocaleDateString('en-IN',{month:'short',year:'numeric'}):null};
+}
+function getTotalAssets(){ return S.assets.reduce((a,x)=>a+x.amt,0); }
+function getTotalLiab(){ return S.liabilities.reduce((a,x)=>a+x.amt,0); }
+function getNetWorth(){ return getTotalAssets() - getTotalLiab(); }
+function getFixedTotal(){ return S.fixed.reduce((a,x)=>a+x.amt,0); }
+function getLifestyleTotal(){ return S.cats.reduce((a,x)=>a+x.budget,0); }
+function getMonthExps(m){ return S.expenses[m]||[]; }
+function getCatSpent(m,cid){ return getMonthExps(m).filter(e=>e.catId===cid).reduce((a,e)=>a+e.amt,0); }
+function getMonthTotal(m){ return getMonthExps(m).reduce((a,e)=>a+e.amt,0); }
+function getBajajBal(){ const l=S.liabilities.find(x=>x.name.includes('Bajaj')); return l?l.amt:0; }
+function getEmgBal(){ const a=S.assets.find(x=>x.name.toLowerCase().includes('cash')||x.name.toLowerCase().includes('emergency')); return a?a.amt:100000; }
+
+// ════════════════════════════════
+// NAV
+// ════════════════════════════════
+let currentTab = 'dash';
+function goTab(id){
+  currentTab = id;
+  ['dash','log','networth','plan','ai'].forEach(p=>{
+    document.getElementById('pnl-'+p).classList.toggle('on',p===id);
+    document.getElementById('nav-'+p).classList.toggle('on',p===id);
+  });
+  document.getElementById('chat-input-row').style.display = id==='ai' ? 'flex' : 'none';
+  document.getElementById('scroll-area').scrollTop = 0;
+  renderTab(id);
+}
+function renderTab(id){
+  if(id==='dash') renderDash();
+  else if(id==='log') renderLog();
+  else if(id==='networth') renderNetWorth();
+  else if(id==='plan') renderPlan();
+  else if(id==='ai') renderAI();
+}
+function renderAll(){ renderTab(currentTab); }
+
+// ════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════
+function renderDash(){
+  const m = S.currentMonth;
+  const spent = getMonthTotal(m);
+  const budget = getLifestyleTotal();
+  const rem = budget - spent;
+  const nw = getNetWorth();
+  const bajaj = getBajajBal();
+  const emg = getEmgBal();
+  const sim = bajajSim(bajaj, S.bajajRate, S.bajajPmt);
+  const emgPct = Math.min(100, Math.round(emg/2000000*100));
+  const bajajPct = Math.min(100, Math.round((2296272-bajaj)/2296272*100));
+  const surplus = S.income - getFixedTotal() - S.bajajPmt - S.sip - budget;
+
+  document.getElementById('topbar-month').textContent = MONTHS_LONG[m]||'';
+  document.getElementById('dash-month-lbl').textContent = MONTHS_LONG[m]||'';
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat"><div class="sl">Net worth</div><div class="sv ${nw>=0?'cg':'cr'}">${nw>=0?'':'−'}${fmt(Math.abs(nw))}</div><div class="ss">${nw<0?'⚠ negative net worth':''}</div></div>
+    <div class="stat"><div class="sl">Spent this month</div><div class="sv ${spent>budget?'cr':'ca'}">${fmt(spent)}</div><div class="ss">of ${fmt(budget)} budget</div></div>
+    <div class="stat"><div class="sl">Emergency fund</div><div class="sv cb">${fmt(emg)}</div><div class="ss">${emgPct}% of ₹20L goal</div></div>
+    <div class="stat"><div class="sl">Bajaj OD</div><div class="sv cr">${fmt(bajaj)}</div><div class="ss">Clears: ${sim.clearedDate||'recalc'}</div></div>`;
+
+  // NW snapshot
+  const assets = getTotalAssets(), liab = getTotalLiab();
+  document.getElementById('dash-nw').innerHTML = `
+    <div class="row"><span class="row-name">Total assets</span><span class="row-val cg">${fmt(assets)}</span></div>
+    <div class="row"><span class="row-name">Total liabilities</span><span class="row-val cr">${fmt(liab)}</span></div>
+    <div class="row"><span class="row-name" style="font-weight:600">Net worth</span><span class="row-val ${nw>=0?'cg':'cr'}" style="font-weight:600">${nw>=0?'':'-'}${fmt(Math.abs(nw))}</span></div>`;
+
+  // Budget bars
+  const catTot = {};
+  getMonthExps(m).forEach(e=>{ catTot[e.catId]=(catTot[e.catId]||0)+e.amt; });
+  document.getElementById('dash-bars').innerHTML = S.cats.map(c=>{
+    const s=catTot[c.id]||0, pct=Math.min(100,Math.round(s/c.budget*100)), over=s>c.budget;
+    return `<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${c.emoji} ${c.name}</span>
+        <span style="font-family:monospace;font-size:11px;color:${over?'var(--red)':'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}</span>
+      </div>
+      <div class="pb"><div class="pb-f" style="width:${pct}%;background:${over?'var(--red)':c.color}"></div></div>
+    </div>`;
+  }).join('') + `<div style="display:flex;justify-content:space-between;padding:8px 0 0;font-size:13px;font-weight:600;border-top:1px solid var(--b2);margin-top:4px">
+    <span>Total</span><span style="font-family:monospace;color:${spent>budget?'var(--red)':'var(--grn)'}">${fmt(spent)} / ${fmt(budget)}</span></div>`;
+
+  // Bajaj
+  document.getElementById('dash-bajaj').innerHTML = `
+    <div style="font-family:monospace;font-size:22px;color:var(--red);margin-bottom:4px">${fmt(bajaj)}</div>
+    <div class="pb" style="height:10px;margin-bottom:6px"><div class="pb-f" style="width:${bajajPct}%;background:linear-gradient(90deg,var(--grn),var(--blu))"></div></div>
+    <div style="display:flex;justify-content:space-between;font-family:monospace;font-size:10px;color:var(--ink3)">
+      <span>₹22.96L start</span><span style="color:var(--grn)">${bajajPct}% paid</span><span>₹0 target</span>
+    </div>
+    <div class="row" style="margin-top:8px"><span class="row-name">Monthly payment</span><span class="row-val ca">${fmt(S.bajajPmt)}</span></div>
+    <div class="row"><span class="row-name">Monthly interest</span><span class="row-val cr">${fmt(bajaj*S.bajajRate/100/12)}</span></div>
+    <div class="row"><span class="row-name">Estimated clear date</span><span class="row-val cg">${sim.clearedDate||'—'}</span></div>`;
+
+  // Allocation
+  const fixed = getFixedTotal();
+  document.getElementById('dash-alloc').innerHTML = [
+    ['Income',fmt(S.income),'var(--grn)'],
+    ['Fixed (NN)',fmt(fixed),'var(--red)'],
+    ['Bajaj OD payment',fmt(S.bajajPmt),'var(--amb)'],
+    ['SIP / Emergency MF',fmt(S.sip),'var(--grn)'],
+    ['Lifestyle budget',fmt(budget),'var(--blu)'],
+    ['Surplus / deficit',(surplus>=0?'':'-')+fmt(Math.abs(surplus)), surplus>=0?'var(--grn)':'var(--red)'],
+  ].map(([l,v,c])=>`<div class="row"><span class="row-name">${l}</span><span class="row-val" style="color:${c}">${v}</span></div>`).join('');
+}
+
+// ════════════════════════════════
+// LOG EXPENSES
+// ════════════════════════════════
+function renderLog(){
+  const m = S.currentMonth;
+  document.getElementById('log-month-lbl').textContent = MONTHS_LONG[m]||'';
+  document.getElementById('log-months').innerHTML = MONTHS.map((mn,i)=>
+    `<button class="mpill ${i===m?'on':''}" onclick="S.currentMonth=${i};saveS();renderLog();renderDash()">${mn}</button>`).join('');
+
+  // Category select
+  const sel = document.getElementById('l-cat');
+  if(sel.options.length<=1) sel.innerHTML = '<option value="">Category</option>'+S.cats.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+
+  const exps = getMonthExps(m);
+  const empty = document.getElementById('exp-empty');
+  const list = document.getElementById('exp-list');
+  if(!exps.length){ list.innerHTML=''; empty.style.display='block'; }
+  else {
+    empty.style.display='none';
+    list.innerHTML=[...exps].reverse().map(e=>{
+      const cat=S.cats.find(c=>c.id===e.catId)||{emoji:'📦',name:'Other',color:'#888'};
+      return `<div class="exp-item">
+        <div class="ei-cat-dot" style="background:${cat.color}"></div>
+        <span class="ei-name">${e.name}</span>
+        <span class="ei-meta">${cat.name} · ${e.date||''}</span>
+        <span class="ei-amt" style="color:${cat.color}">${fmt(e.amt)}</span>
+        <button class="ei-del" onclick="delExp(${e.id})">×</button>
+      </div>`;
+    }).join('');
+  }
+  const total=getMonthTotal(m);
+  document.getElementById('exp-total').textContent=fmt(total);
+  document.getElementById('exp-total').style.color=total>getLifestyleTotal()?'var(--red)':'var(--grn)';
+
+  // Category bars
+  const catTot={};
+  exps.forEach(e=>{ catTot[e.catId]=(catTot[e.catId]||0)+e.amt; });
+  document.getElementById('log-bars').innerHTML = S.cats.map(c=>{
+    const s=catTot[c.id]||0, pct=Math.min(100,Math.round(s/c.budget*100)), over=s>c.budget;
+    return `<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${c.emoji} ${c.name}</span>
+        <span style="font-family:monospace;font-size:11px;color:${over?'var(--red)':'var(--ink3)'}">${fmt(s)}/${fmt(c.budget)} ${over?'⚠️':''}</span>
+      </div>
+      <div class="pb"><div class="pb-f" style="width:${pct}%;background:${over?'var(--red)':c.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+function addExp(){
+  const name=document.getElementById('l-name').value.trim();
+  const amt=parseFloat(document.getElementById('l-amt').value);
+  const catId=parseInt(document.getElementById('l-cat').value);
+  if(!name||!amt||!catId) return;
+  if(!S.expenses[S.currentMonth]) S.expenses[S.currentMonth]=[];
+  S.expenses[S.currentMonth].push({id:Date.now(),name,catId,amt,date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})});
+  saveS();
+  document.getElementById('l-name').value='';
+  document.getElementById('l-amt').value='';
+  document.getElementById('l-cat').value='';
+  renderLog(); renderDash();
+}
+function delExp(id){
+  S.expenses[S.currentMonth]=(S.expenses[S.currentMonth]||[]).filter(e=>e.id!==id);
+  saveS(); renderLog(); renderDash();
+}
+
+// ════════════════════════════════
+// NET WORTH
+// ════════════════════════════════
+function renderNetWorth(){
+  const ta=getTotalAssets(), tl=getTotalLiab(), nw=getNetWorth();
+  const bajaj=getBajajBal(), emg=getEmgBal();
+
+  document.getElementById('nw-summary-stats').innerHTML=`
+    <div class="stat"><div class="sl">Total assets</div><div class="sv cg">${fmt(ta)}</div></div>
+    <div class="stat"><div class="sl">Total liabilities</div><div class="sv cr">${fmt(tl)}</div></div>
+    <div class="stat"><div class="sl">Net worth</div><div class="sv ${nw>=0?'cg':'cr'}">${nw>=0?'':'-'}${fmt(Math.abs(nw))}</div><div class="ss">${nw<0?'Currently negative':'Building up'}</div></div>
+    <div class="stat"><div class="sl">Emergency fund</div><div class="sv cb">${fmt(emg)}</div><div class="ss">${Math.min(100,Math.round(emg/2000000*100))}% of ₹20L</div></div>`;
+
+  function makeList(items, type){
+    return items.map((item,i)=>`
+      <div class="nw-item">
+        <input class="nw-name" value="${item.name}" onblur="updateNwName('${type}',${item.id},this.value)">
+        <input class="nw-val ${type==='asset'?'cg':'cr'}" value="${fmt(item.amt)}" onblur="updateNwAmt('${type}',${item.id},this.value)" onfocus="this.select()">
+        <button class="nw-del" onclick="delNwItem('${type}',${item.id})">×</button>
+      </div>`).join('');
+  }
+
+  document.getElementById('nw-assets-list').innerHTML=makeList(S.assets,'asset');
+  document.getElementById('nw-liab-list').innerHTML=makeList(S.liabilities,'liab');
+
+  document.getElementById('nw-total-display').innerHTML=`
+    <div class="row"><span class="row-name">Assets</span><span class="row-val cg">${fmt(ta)}</span></div>
+    <div class="row"><span class="row-name">Liabilities</span><span class="row-val cr">${fmt(tl)}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:12px 0 4px;font-size:15px;font-weight:500">
+      <span>Net worth</span>
+      <span style="font-family:monospace;color:${nw>=0?'var(--grn)':'var(--red)'}">${nw>=0?'':'-'}${fmt(Math.abs(nw))}</span>
+    </div>
+    ${nw<0?`<div class="alert ar" style="margin-top:8px">Net worth is negative — liabilities exceed assets. Focus on clearing Bajaj OD (27% interest) to flip this positive.</div>`:`<div class="alert ag" style="margin-top:8px">Net worth is positive! Keep reducing Bajaj OD to accelerate growth.</div>`}`;
+}
+function updateNwAmt(type,id,val){
+  const list = type==='asset'?S.assets:S.liabilities;
+  const item = list.find(x=>x.id===id); if(!item) return;
+  item.amt = pAmt(val);
+  saveS(); renderDash(); renderNetWorth(); renderPlan();
+}
+function updateNwName(type,id,val){
+  const list=type==='asset'?S.assets:S.liabilities;
+  const item=list.find(x=>x.id===id); if(!item) return;
+  item.name=val; saveS();
+}
+function addNwItem(type){
+  const nameEl=document.getElementById(type==='asset'?'na-name':'nl-name');
+  const amtEl=document.getElementById(type==='asset'?'na-amt':'nl-amt');
+  const name=nameEl.value.trim(), amt=parseFloat(amtEl.value)||0;
+  if(!name) return;
+  const list=type==='asset'?S.assets:S.liabilities;
+  list.push({id:Date.now(),name,amt,note:''});
+  nameEl.value=''; amtEl.value='';
+  saveS(); renderNetWorth(); renderDash();
+}
+function delNwItem(type,id){
+  if(type==='asset') S.assets=S.assets.filter(x=>x.id!==id);
+  else S.liabilities=S.liabilities.filter(x=>x.id!==id);
+  saveS(); renderNetWorth(); renderDash();
+}
+
+// ════════════════════════════════
+// PLAN & MILESTONES
+// ════════════════════════════════
+function renderPlan(){
+  document.getElementById('p-income').value=S.income;
+  document.getElementById('p-bajpmt').value=S.bajajPmt;
+  document.getElementById('p-sip').value=S.sip;
+  document.getElementById('p-rate').value=S.bajajRate;
+
+  const bajaj=getBajajBal();
+  const sim=bajajSim(bajaj,S.bajajRate,S.bajajPmt);
+  const emg=getEmgBal();
+  const addM=m=>{const d=new Date(2026,4,1);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('en-IN',{month:'short',year:'numeric'});};
+
+  let emgM=sim.months, emgB=emg+(sim.months*10500);
+  const postM=(S.bajajPmt+S.sip)*0.75;
+  while(emgB<2000000&&emgM<180){emgM++;emgB=emgB*(1+.07/12)+postM;}
+
+  document.getElementById('plan-stats').innerHTML=`
+    <div class="stat"><div class="sl">Bajaj clears</div><div class="sv cg">${sim.clearedDate||'recalc'}</div><div class="ss">${sim.months} months remaining</div></div>
+    <div class="stat"><div class="sl">Total interest</div><div class="sv cr">${fmt(sim.totalInt)}</div><div class="ss">still to pay at 27%</div></div>
+    <div class="stat"><div class="sl">Emergency ₹20L</div><div class="sv cb">${addM(emgM)}</div><div class="ss">after Bajaj clears</div></div>
+    <div class="stat"><div class="sl">Monthly surplus</div><div class="sv ${S.income-getFixedTotal()-S.bajajPmt-S.sip-getLifestyleTotal()>=0?'cg':'cr'}">${fmt(Math.abs(S.income-getFixedTotal()-S.bajajPmt-S.sip-getLifestyleTotal()))}</div><div class="ss">${S.income-getFixedTotal()-S.bajajPmt-S.sip-getLifestyleTotal()>=0?'surplus':'DEFICIT'}</div></div>`;
+
+  const tl=[
+    {dot:'🔴',bc:'var(--red)',period:'Now — May 2026',event:'Bajaj OD attack begins',detail:`Current balance: ${fmt(bajaj)}. Paying ${fmt(S.bajajPmt)}/month. Monthly interest: ${fmt(bajaj*S.bajajRate/100/12)}.`,pill:'Started',pc:'var(--redd)',ptc:'var(--red)'},
+    {dot:'🟡',bc:'var(--amb)',period:'Jul 2026',event:'Baby arrives — costs increase',detail:'Japa maid ₹35k/month for 3 months, then Nanny. Baby account ₹50k/month. Budget tightens — stay on plan.',pill:'Baby phase',pc:'var(--ambd)',ptc:'var(--amb)'},
+    {dot:'🟢',bc:'var(--grn)',period:sim.clearedDate||'Dec 2027',event:`Bajaj Finance OD cleared — ${fmt(bajaj)} → ₹0`,detail:`${sim.months} months of ${fmt(S.bajajPmt)}/month. ${fmt(S.totalInt||sim.totalInt)} in interest paid. After this, ${fmt(S.bajajPmt)}/month is freed.`,pill:'Target: Dec 2027',pc:'var(--grnd)',ptc:'var(--grn)'},
+    {dot:'🔵',bc:'var(--blu)',period:addM(emgM),event:'Emergency fund hits ₹20L',detail:`Post-Bajaj, ${fmt(postM)}/month floods into emergency MF. 8 months of expenses as safety net. No more CC loop ever.`,pill:'Safety net done',pc:'var(--blud)',ptc:'var(--blu)'},
+    {dot:'🚗',bc:'var(--amb)',period:'Oct 2027',event:'Car EMI 1 ends — ₹10,789/month freed',detail:'Redirect 100% to emergency fund or extra Bajaj payment if still outstanding.',pill:'+'+fmt(10789)+'/month',pc:'var(--ambd)',ptc:'var(--amb)'},
+    {dot:'🚗',bc:'var(--amb)',period:'2029',event:'Car EMI 2 ends — zero debt',detail:'Completely debt-free. Income ~₹6L+ by now. SIP scales to ₹1.5L+/month. FIRE locked.',pill:'+'+fmt(31665)+'/month',pc:'var(--ambd)',ptc:'var(--amb)'},
+    {dot:'🔥',bc:'var(--pur)',period:'2040–42',event:'FIRE — Financial independence',detail:'₹6–8Cr corpus at 12% p.a. returns. ₹2L+/month passive income. Baby\'s education funded. You\'re free.',pill:'₹6–8Cr corpus',pc:'var(--purd)',ptc:'var(--pur)'},
+  ];
+
+  document.getElementById('plan-timeline').innerHTML=tl.map(t=>`
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:${t.bc};color:${t.bc};font-size:16px;border:none">${t.dot}</div>
+      <div class="tl-body">
+        <div class="tp">${t.period}</div>
+        <div class="te">${t.event}</div>
+        <div class="td">${t.detail}</div>
+        <span class="pill" style="background:${t.pc};color:${t.ptc};border:1px solid ${t.ptc}44">${t.pill}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════
+// AI ADVISOR
+// ════════════════════════════════
+function getFinancialContext(){
+  const m=S.currentMonth;
+  const spent=getMonthTotal(m), budget=getLifestyleTotal();
+  const bajaj=getBajajBal(), emg=getEmgBal();
+  const sim=bajajSim(bajaj,S.bajajRate,S.bajajPmt);
+  const nw=getNetWorth();
+  const catTot={};
+  getMonthExps(m).forEach(e=>{catTot[e.catId]=(catTot[e.catId]||0)+e.amt;});
+  const overspent=S.cats.filter(c=>(catTot[c.id]||0)>c.budget).map(c=>`${c.name} (over by ₹${Math.round((catTot[c.id]||0)-c.budget).toLocaleString('en-IN')})`);
+
+  return `You are a sharp, honest financial advisor for Koko and Vijaya, an Indian couple in Gurgaon. You know their complete financial situation and give specific, actionable advice. Never be generic. Always reference their actual numbers.
+
+FINANCIAL SNAPSHOT (live data):
+- Monthly income: ₹${S.income.toLocaleString('en-IN')}
+- Net worth: ${nw>=0?'₹':'−₹'}${Math.abs(Math.round(nw)).toLocaleString('en-IN')} (${nw<0?'NEGATIVE — liabilities exceed assets':'positive'})
+- Bajaj Finance OD: ₹${Math.round(bajaj).toLocaleString('en-IN')} at 27% p.a. → clears ${sim.clearedDate||'recalculating'} if paying ₹${S.bajajPmt.toLocaleString('en-IN')}/month
+- Monthly interest on Bajaj: ₹${Math.round(bajaj*S.bajajRate/100/12).toLocaleString('en-IN')} (money burning every month)
+- Emergency fund: ₹${Math.round(emg).toLocaleString('en-IN')} (target ₹20,00,000)
+- SIP / Emergency MF: ₹${S.sip.toLocaleString('en-IN')}/month
+- This month spending: ₹${Math.round(spent).toLocaleString('en-IN')} of ₹${Math.round(budget).toLocaleString('en-IN')} lifestyle budget
+${overspent.length?`- OVERSPENT categories: ${overspent.join(', ')}`:'- No categories overspent this month'}
+- Total assets: ₹${Math.round(getTotalAssets()).toLocaleString('en-IN')}
+- Total liabilities: ₹${Math.round(getTotalLiab()).toLocaleString('en-IN')}
+
+KEY GOALS:
+1. Clear Bajaj OD by Dec 2027 (needs ₹1,49,859/month — currently paying ₹${S.bajajPmt.toLocaleString('en-IN')})
+2. Emergency fund ₹20L (currently ₹${Math.round(emg).toLocaleString('en-IN')})
+3. FIRE by 2040-42 (₹6-8Cr corpus)
+4. Sister's wedding end-2027 (need ₹10L)
+5. Baby education fund (starting now)
+
+CONTEXT: Baby arriving ~Jun 2026. Japa maid ₹35k/month. Not highly disciplined with money — needs simple rules. Income grows 5-8% annually from Feb each year. Gold SIP kept (non-negotiable). Vijaya's investments untouched.
+
+Be direct, specific, and encouraging. Reference their actual numbers. Keep responses concise for mobile reading. Use ₹ amounts. If they ask what to do with surplus, apply the rules: emergency <₹5L → 100% emergency; ₹5-20L → 60/40 split; post ₹20L → SIP.`;
+}
+
+function renderAI(){
+  const wrap=document.getElementById('chat-wrap');
+  if(!S.chatHistory.length){
+    const bajaj=getBajajBal(), emg=getEmgBal();
+    const sim=bajajSim(bajaj,S.bajajRate,S.bajajPmt);
+    wrap.innerHTML=`<div class="chat-msg chat-ai">
+      <strong>Hi! I'm your financial advisor.</strong><br><br>
+      I can see your live numbers:<br>
+      • Bajaj OD: <strong>₹${Math.round(bajaj).toLocaleString('en-IN')}</strong> → clears <strong>${sim.clearedDate||'Dec 2027'}</strong><br>
+      • Emergency fund: <strong>₹${Math.round(emg).toLocaleString('en-IN')}</strong> of ₹20L goal<br>
+      • Monthly interest burning: <strong>₹${Math.round(bajaj*S.bajajRate/100/12).toLocaleString('en-IN')}</strong><br><br>
+      Ask me anything — "Am I on track?", "What to do with my bonus?", "How to cut grocery spending?", "Should I pause SIP?"
+    </div>`;
+  } else {
+    wrap.innerHTML=S.chatHistory.map(h=>
+      `<div class="chat-msg chat-${h.role==='user'?'user':'ai'}">${h.content.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`
+    ).join('');
+  }
+  wrap.scrollTop=wrap.scrollHeight;
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim(); if(!msg) return;
+  input.value='';
+
+  S.chatHistory.push({role:'user',content:msg});
+  saveS();
+
+  const wrap=document.getElementById('chat-wrap');
+  wrap.innerHTML+=`<div class="chat-msg chat-user">${msg}</div>`;
+  wrap.innerHTML+=`<div class="chat-msg chat-typing" id="typing-ind">Thinking...</div>`;
+  wrap.scrollTop=wrap.scrollHeight;
+
+  try {
+    const messages=[{role:'user',content:getFinancialContext()+'\n\n---\n\nConversation so far:\n'+
+      S.chatHistory.slice(-8).map(h=>`${h.role==='user'?'User':'Advisor'}: ${h.content}`).join('\n')+
+      `\n\nUser: ${msg}\n\nAdvisor:`}];
+
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||"Sorry, I couldn't connect. Check your internet and try again.";
+
+    S.chatHistory.push({role:'assistant',content:reply});
+    saveS();
+
+    document.getElementById('typing-ind')?.remove();
+    wrap.innerHTML+=`<div class="chat-msg chat-ai">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+    wrap.scrollTop=wrap.scrollHeight;
+  } catch(e) {
+    document.getElementById('typing-ind')?.remove();
+    wrap.innerHTML+=`<div class="chat-msg chat-ai">Connection error. Please check your internet and try again.</div>`;
+    wrap.scrollTop=wrap.scrollHeight;
+  }
+}
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+// Check if already unlocked this session
+if(sessionStorage.getItem('unlocked')==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderAll();
+}
+// Override unlock to set session flag
+const _unlock=unlock;
+window.unlock=function(){
+  const pin=document.getElementById('pin-input').value;
+  const stored=localStorage.getItem(PINKEY)||'1234';
+  if(pin===stored){
+    sessionStorage.setItem('unlocked','1');
+    document.getElementById('lock').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('pin-input').value='';
+    document.getElementById('lock-err').textContent='';
+    renderAll();
+  } else {
+    document.getElementById('lock-err').textContent='Wrong PIN. Try again.';
+    document.getElementById('pin-input').value='';
+  }
+};
+</script>
+</body>
+</html>
