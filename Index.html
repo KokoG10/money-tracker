@@ -1256,6 +1256,7 @@ const fmtSigned = n => (n < 0 ? '−' : '') + fmt(n);
 const pAmt = v => typeof v === 'number' ? v : parseFloat(String(v).replace(/[₹,\s]/g, '')) || 0;
 
 function bajajSim(bal, rate, pmt) {
+  if (bal <= 0) return { months: 0, totalInt: 0, sched: [], clearedDate: 'Already cleared' };
   let b = bal, m = 0, ti = 0, sched = [];
   const r = rate / 100 / 12;
   while (b > 0.01 && m < 240) {
@@ -1282,7 +1283,14 @@ function getBajajBal() { const l = S.liabilities.find(x => x.type === 'bajaj'); 
 function getCCTotal() { return S.liabilities.filter(x => x.type === 'cc').reduce((a, x) => a + x.amt, 0); }
 function getOtherLiabTotal() { return S.liabilities.filter(x => x.type === 'other').reduce((a, x) => a + x.amt, 0); }
 function getCarLoanTotal() { return S.liabilities.filter(x => x.type === 'car').reduce((a, x) => a + x.amt, 0); }
-function getEmgBal() { const a = S.assets.find(x => x.name.toLowerCase().includes('cash')); return a ? a.amt : 0; }
+function getEmgBal() {
+  // Read from the dedicated Emergency Fund bucket (funds), not the cash asset
+  const fund = S.funds.find(x => x.name.toLowerCase().includes('emergency'));
+  if (fund) return fund.amt;
+  // Fallback: any asset named 'emergency'
+  const asset = S.assets.find(x => x.name.toLowerCase().includes('emergency'));
+  return asset ? asset.amt : 0;
+}
 function getTotalAssets() { return S.assets.reduce((a, x) => a + x.amt, 0); }
 function getTotalLiab() { return S.liabilities.reduce((a, x) => a + x.amt, 0); }
 function getNetWorth() { return getTotalAssets() - getTotalLiab(); }
@@ -1315,24 +1323,32 @@ function getUnifiedMonths() {
     });
   });
   // Live - from S.expenses (keyed by month index 0=May 2026)
-  // But only add if not already in historical (2026-05 = May 2026 = index 0)
+  // If the month already exists in historical, MERGE the live expenses on top of it
   Object.entries(S.expenses || {}).forEach(([midx, exps]) => {
     const idx = parseInt(midx);
     if (!exps.length) return;
     const d = new Date(2026, 4 + idx, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    // Skip if already in historical
-    if (HISTORICAL_DATA[key]) return;
     const byCat = {};
     let total = 0;
     exps.forEach(e => {
       total += e.amt;
       byCat[e.catId] = (byCat[e.catId] || 0) + e.amt;
     });
-    out.push({
-      key, label: d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}),
-      total, byCategory: byCat, source: 'live'
-    });
+    const existing = out.find(x => x.key === key);
+    if (existing) {
+      // Merge live expenses on top of historical totals
+      existing.total += total;
+      Object.entries(byCat).forEach(([cid, amt]) => {
+        existing.byCategory[parseInt(cid)] = (existing.byCategory[parseInt(cid)] || 0) + amt;
+      });
+      existing.source = 'live'; // mark as having live data
+    } else {
+      out.push({
+        key, label: d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}),
+        total, byCategory: byCat, source: 'live'
+      });
+    }
   });
   return out.sort((a,b) => a.key.localeCompare(b.key));
 }
@@ -1439,7 +1455,7 @@ function renderDash() {
   const emg = getEmgBal();
   const sim = bajajSim(bajaj, S.bajajRate, S.bajajPmt);
   const emgPct = Math.min(100, Math.round(emg / 2000000 * 100));
-  const bajajPct = S.bajajLimit > 0 ? Math.min(100, Math.round((S.bajajLimit - bajaj) / S.bajajLimit * 100)) : 0;
+  const bajajPct = S.bajajLimit > 0 ? Math.max(0, Math.min(100, Math.round((S.bajajLimit - bajaj) / S.bajajLimit * 100))) : 0;
   const surplus = getMonthlySurplus();
 
   // Psychology banner
@@ -2258,17 +2274,22 @@ function calcSurplus() {
 // ════════════════════════════════════════════════════════════
 // SETUP
 // ════════════════════════════════════════════════════════════
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el && document.activeElement !== el) el.value = val;
+}
+
 function renderSetup() {
-  document.getElementById('s-income').value = S.income;
-  document.getElementById('s-odlimit').value = S.bajajLimit;
-  document.getElementById('s-bajaj-bal').value = getBajajBal();
-  document.getElementById('s-bajpmt').value = S.bajajPmt;
-  document.getElementById('s-rate').value = S.bajajRate;
-  document.getElementById('s-sip').value = S.sip;
-  document.getElementById('s-fire-year').value = S.fireYear || 2040;
-  document.getElementById('s-fire-corpus').value = S.fireCorpus || 6;
-  document.getElementById('s-fire-exp').value = S.fireMonthlyExp || 200000;
-  document.getElementById('s-fire-return').value = S.fireReturn || 12;
+  setVal('s-income', S.income);
+  setVal('s-odlimit', S.bajajLimit);
+  setVal('s-bajaj-bal', getBajajBal());
+  setVal('s-bajpmt', S.bajajPmt);
+  setVal('s-rate', S.bajajRate);
+  setVal('s-sip', S.sip);
+  setVal('s-fire-year', S.fireYear || 2040);
+  setVal('s-fire-corpus', S.fireCorpus || 6);
+  setVal('s-fire-exp', S.fireMonthlyExp || 200000);
+  setVal('s-fire-return', S.fireReturn || 12);
 
   // Render funds with reorder + delete
   document.getElementById('funds-list').innerHTML = S.funds.map((f, idx) => `
@@ -2592,8 +2613,12 @@ function handleCSVImport(event) {
           const section = cols[0];
           if (section === 'META') {
             const k = cols[1];
-            const v = parseFloat(cols[5]) || 0;
-            if (k in newS) newS[k] = v;
+            const raw = cols[5];
+            if (k in newS) {
+              // Preserve integer keys like currentMonth as integers
+              const v = parseFloat(raw);
+              newS[k] = isNaN(v) ? 0 : v;
+            }
           } else if (section === 'FIXED') {
             newS.fixed.push({ id: parseInt(cols[1]) || Date.now()+Math.random(), name: cols[2], emoji: cols[3]||'📌', amt: parseFloat(cols[4])||0 });
           } else if (section === 'CAT') {
@@ -2645,8 +2670,9 @@ function confirmReset() {
 // ════════════════════════════════════════════════════════════
 function renderAll() {
   document.getElementById('topbar-sub').textContent = MONTHS_LONG[S.currentMonth] || '';
-  if (currentTab === 'dash') renderDash();
-  else if (currentTab === 'log') renderLog();
+  // Always render the dashboard so top-chart stats stay in sync with any edits
+  renderDash();
+  if (currentTab === 'log') renderLog();
   else if (currentTab === 'goals') renderGoals();
   else if (currentTab === 'trends') renderTrends();
   else if (currentTab === 'networth') renderNetWorth();
