@@ -394,7 +394,21 @@ select.input {
 .exp-meta { font-size: 11px; color: var(--ink3); margin-top: 2px; }
 .exp-amt { font-size: 15px; font-weight: 700; font-feature-settings: "tnum"; }
 
-/* ─── ACTION BUTTONS (delete + reorder) ──────────────────────────── */
+/* ─── DRAG HANDLE ──────────────────────────── */
+.drag-handle {
+  width: 28px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: grab; color: var(--ink4); touch-action: none;
+  border-radius: 6px; transition: color .15s;
+}
+.drag-handle:active { cursor: grabbing; }
+.drag-handle svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+.drag-row { transition: box-shadow .15s, background .15s; border-radius: 10px; }
+.drag-row.dragging {
+  background: var(--s1); box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  opacity: .95; z-index: 999; position: relative;
+}
+.drag-row.drag-over { background: var(--sage-bg); }
 .row-actions {
   display: flex; gap: 4px; align-items: center; flex-shrink: 0;
 }
@@ -1284,10 +1298,8 @@ function getCCTotal() { return S.liabilities.filter(x => x.type === 'cc').reduce
 function getOtherLiabTotal() { return S.liabilities.filter(x => x.type === 'other').reduce((a, x) => a + x.amt, 0); }
 function getCarLoanTotal() { return S.liabilities.filter(x => x.type === 'car').reduce((a, x) => a + x.amt, 0); }
 function getEmgBal() {
-  // Read from the dedicated Emergency Fund bucket (funds), not the cash asset
   const fund = S.funds.find(x => x.name.toLowerCase().includes('emergency'));
   if (fund) return fund.amt;
-  // Fallback: any asset named 'emergency'
   const asset = S.assets.find(x => x.name.toLowerCase().includes('emergency'));
   return asset ? asset.amt : 0;
 }
@@ -1323,7 +1335,7 @@ function getUnifiedMonths() {
     });
   });
   // Live - from S.expenses (keyed by month index 0=May 2026)
-  // If the month already exists in historical, MERGE the live expenses on top of it
+  // If the month already exists in historical, MERGE the live expenses on top
   Object.entries(S.expenses || {}).forEach(([midx, exps]) => {
     const idx = parseInt(midx);
     if (!exps.length) return;
@@ -1337,12 +1349,11 @@ function getUnifiedMonths() {
     });
     const existing = out.find(x => x.key === key);
     if (existing) {
-      // Merge live expenses on top of historical totals
       existing.total += total;
       Object.entries(byCat).forEach(([cid, amt]) => {
         existing.byCategory[parseInt(cid)] = (existing.byCategory[parseInt(cid)] || 0) + amt;
       });
-      existing.source = 'live'; // mark as having live data
+      existing.source = 'live';
     } else {
       out.push({
         key, label: d.toLocaleDateString('en-IN', {month:'short', year:'2-digit'}),
@@ -1945,7 +1956,115 @@ function addNW(type) {
   renderAll();
 }
 
-function moveItem(type, id, direction) {
+// ════════════════════════════════════════════════════════════
+// DRAG-TO-SORT (touch + mouse, Plan tab)
+// ════════════════════════════════════════════════════════════
+function initDragSort(containerId, listType) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const rows = () => [...container.querySelectorAll('.drag-row')];
+
+  let dragSrc = null;
+
+  // ── Mouse / pointer drag (desktop) ──
+  container.addEventListener('dragstart', e => {
+    dragSrc = e.target.closest('.drag-row');
+    if (!dragSrc) return;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => dragSrc.classList.add('dragging'), 0);
+  });
+  container.addEventListener('dragend', e => {
+    const row = e.target.closest('.drag-row');
+    if (row) row.classList.remove('dragging');
+    rows().forEach(r => r.classList.remove('drag-over'));
+    dragSrc = null;
+  });
+  container.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest('.drag-row');
+    rows().forEach(r => r.classList.remove('drag-over'));
+    if (target && target !== dragSrc) target.classList.add('drag-over');
+  });
+  container.addEventListener('drop', e => {
+    e.preventDefault();
+    const target = e.target.closest('.drag-row');
+    if (!target || !dragSrc || target === dragSrc) return;
+    rows().forEach(r => r.classList.remove('drag-over'));
+    // Reorder in state
+    const getId = el => parseInt(el.dataset.id);
+    const list = listType === 'fixed' ? S.fixed : S.cats;
+    const fromIdx = list.findIndex(x => x.id === getId(dragSrc));
+    const toIdx   = list.findIndex(x => x.id === getId(target));
+    if (fromIdx === -1 || toIdx === -1) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    save();
+    renderAll();
+  });
+
+  // ── Touch drag (mobile) ──
+  let touchDragRow = null, touchClone = null, touchOffY = 0;
+
+  container.addEventListener('touchstart', e => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    touchDragRow = handle.closest('.drag-row');
+    if (!touchDragRow) return;
+    const t = e.touches[0];
+    const rect = touchDragRow.getBoundingClientRect();
+    touchOffY = t.clientY - rect.top;
+    // Build a visual clone
+    touchClone = touchDragRow.cloneNode(true);
+    touchClone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;
+      z-index:9999;opacity:.95;box-shadow:0 8px 28px rgba(0,0,0,0.14);border-radius:10px;
+      background:var(--s1);pointer-events:none;`;
+    document.body.appendChild(touchClone);
+    touchDragRow.style.opacity = '0.35';
+    e.preventDefault();
+  }, { passive: false });
+
+  container.addEventListener('touchmove', e => {
+    if (!touchDragRow || !touchClone) return;
+    const t = e.touches[0];
+    touchClone.style.top = (t.clientY - touchOffY) + 'px';
+    // Highlight the row being hovered
+    rows().forEach(r => r.classList.remove('drag-over'));
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el) {
+      const over = el.closest('.drag-row');
+      if (over && over !== touchDragRow) over.classList.add('drag-over');
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  container.addEventListener('touchend', e => {
+    if (!touchDragRow || !touchClone) return;
+    const t = e.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const target = el ? el.closest('.drag-row') : null;
+    // Clean up visuals
+    touchClone.remove(); touchClone = null;
+    touchDragRow.style.opacity = '';
+    rows().forEach(r => r.classList.remove('drag-over'));
+    // Reorder if dropped on a different row
+    if (target && target !== touchDragRow) {
+      const getId = el => parseInt(el.dataset.id);
+      const list = listType === 'fixed' ? S.fixed : S.cats;
+      const fromIdx = list.findIndex(x => x.id === getId(touchDragRow));
+      const toIdx   = list.findIndex(x => x.id === getId(target));
+      if (fromIdx !== -1 && toIdx !== -1) {
+        const [moved] = list.splice(fromIdx, 1);
+        list.splice(toIdx, 0, moved);
+        save();
+        renderAll();
+      }
+    }
+    touchDragRow = null;
+  });
+}
+
+
   let list;
   if (type === 'asset') list = S.assets;
   else if (type === 'liab') list = S.liabilities;
@@ -1967,21 +2086,18 @@ function moveItem(type, id, direction) {
 // PLAN (Setup + Budget + Milestones + Surplus)
 // ════════════════════════════════════════════════════════════
 function renderPlan() {
-  // Fixed costs with reorder + edit emoji + delete confirmation
-  document.getElementById('fixed-list').innerHTML = S.fixed.map((f, idx) => `
-    <div class="row">
+  // Fixed costs with drag-to-sort + edit emoji + delete
+  document.getElementById('fixed-list').innerHTML = S.fixed.map((f) => `
+    <div class="row drag-row" data-type="fixed" data-id="${f.id}" draggable="true">
+      <div class="drag-handle" title="Drag to reorder">
+        <svg viewBox="0 0 14 14"><circle cx="4" cy="3" r="1.1"/><circle cx="10" cy="3" r="1.1"/><circle cx="4" cy="7" r="1.1"/><circle cx="10" cy="7" r="1.1"/><circle cx="4" cy="11" r="1.1"/><circle cx="10" cy="11" r="1.1"/></svg>
+      </div>
       <button class="emoji-edit" onclick="editEmoji('fixed',${f.id})">${f.emoji || '📌'}</button>
       <div class="row-body" style="display:flex;align-items:center;gap:8px">
         <input class="editable-name" value="${f.name}" onblur="updFixed(${f.id},'name',this.value)">
       </div>
       <input class="editable cr" type="number" value="${f.amt}" inputmode="decimal" onchange="updFixed(${f.id},'amt',this.value)" onfocus="this.select()">
       <div class="row-actions">
-        <button class="icon-btn" onclick="moveItem('fixed',${f.id},-1)" ${idx === 0 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-        </button>
-        <button class="icon-btn" onclick="moveItem('fixed',${f.id},1)" ${idx === S.fixed.length - 1 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
         <button class="icon-btn danger" onclick="confirmDelFixed(${f.id})">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
         </button>
@@ -1992,22 +2108,20 @@ function renderPlan() {
       <div class="row-body">Total fixed</div>
       <div class="row-val cr">${fmt(getFixedTotal())}</div>
     </div>`;
+  initDragSort('fixed-list', 'fixed');
 
-  // Categories with reorder + edit emoji + delete confirmation
-  document.getElementById('cats-list').innerHTML = S.cats.map((c, idx) => `
-    <div class="row">
+  // Categories with drag-to-sort + edit emoji + delete
+  document.getElementById('cats-list').innerHTML = S.cats.map((c) => `
+    <div class="row drag-row" data-type="cat" data-id="${c.id}" draggable="true">
+      <div class="drag-handle" title="Drag to reorder">
+        <svg viewBox="0 0 14 14"><circle cx="4" cy="3" r="1.1"/><circle cx="10" cy="3" r="1.1"/><circle cx="4" cy="7" r="1.1"/><circle cx="10" cy="7" r="1.1"/><circle cx="4" cy="11" r="1.1"/><circle cx="10" cy="11" r="1.1"/></svg>
+      </div>
       <button class="emoji-edit" onclick="editEmoji('cat',${c.id})">${c.emoji}</button>
       <div class="row-body" style="display:flex;align-items:center;gap:8px">
         <input class="editable-name" value="${c.name}" onblur="updCat(${c.id},'name',this.value)">
       </div>
       <input class="editable" style="color:${c.color}" type="number" value="${c.budget}" inputmode="decimal" onchange="updCat(${c.id},'budget',this.value)" onfocus="this.select()">
       <div class="row-actions">
-        <button class="icon-btn" onclick="moveItem('cat',${c.id},-1)" ${idx === 0 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-        </button>
-        <button class="icon-btn" onclick="moveItem('cat',${c.id},1)" ${idx === S.cats.length - 1 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
         <button class="icon-btn danger" onclick="confirmDelCat(${c.id})">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
         </button>
@@ -2018,6 +2132,7 @@ function renderPlan() {
       <div class="row-body">Total lifestyle</div>
       <div class="row-val cb">${fmt(getLifestyleTotal())}</div>
     </div>`;
+  initDragSort('cats-list', 'cat');
 
   // Allocation
   const fixed = getFixedTotal();
@@ -2615,7 +2730,6 @@ function handleCSVImport(event) {
             const k = cols[1];
             const raw = cols[5];
             if (k in newS) {
-              // Preserve integer keys like currentMonth as integers
               const v = parseFloat(raw);
               newS[k] = isNaN(v) ? 0 : v;
             }
@@ -2670,7 +2784,6 @@ function confirmReset() {
 // ════════════════════════════════════════════════════════════
 function renderAll() {
   document.getElementById('topbar-sub').textContent = MONTHS_LONG[S.currentMonth] || '';
-  // Always render the dashboard so top-chart stats stay in sync with any edits
   renderDash();
   if (currentTab === 'log') renderLog();
   else if (currentTab === 'goals') renderGoals();
