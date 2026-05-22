@@ -2065,6 +2065,7 @@ function initDragSort(containerId, listType) {
 }
 
 
+function moveItem(type, id, direction) {
   let list;
   if (type === 'asset') list = S.assets;
   else if (type === 'liab') list = S.liabilities;
