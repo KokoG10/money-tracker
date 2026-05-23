@@ -96,60 +96,54 @@ body {
 input, button, select, textarea { font-family: inherit; color: inherit; }
 
 
-/* ─── MONTHLY RESET CARD ──────────────────────────── */
-.reset-card {
-  border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 14px;
-  display: flex; align-items: center; gap: 12px; border: 0.5px solid var(--border);
-}
-.reset-card.urgent { background: linear-gradient(135deg,var(--rose-bg),#fff5f5); border-color: rgba(184,101,96,.3); }
-.reset-card.soon   { background: linear-gradient(135deg,var(--peach-bg),#fff9f5); border-color: rgba(184,116,64,.25); }
-.reset-card.calm   { background: linear-gradient(135deg,var(--sage-bg),#f5fbf7); border-color: rgba(94,138,106,.2); }
-.reset-card-icon { font-size: 26px; flex-shrink: 0; }
-.reset-card-body { flex: 1; min-width: 0; }
-.reset-card-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-.reset-card-sub { font-size: 11px; color: var(--ink2); }
-.reset-card-btn {
-  padding: 8px 13px; border-radius: 20px; border: none;
-  font-size: 12px; font-weight: 700; cursor: pointer;
-  white-space: nowrap; font-family: inherit; transition: all .15s var(--ease);
-}
-.reset-card-btn:active { transform: scale(.94); }
-.reset-card-btn.danger { background: var(--rose-dark); color: white; }
-.reset-card-btn.warn   { background: var(--peach-dark); color: white; }
-.reset-card-btn.muted  { background: var(--s3); color: var(--ink2); }
+/* ─── LOG TABS ────────────────────────────── */
+.log-tabs{display:flex;background:var(--s2);border-radius:var(--r-sm);padding:3px;gap:3px;margin-bottom:14px}
+.log-tab-btn{flex:1;padding:8px 2px;border:none;border-radius:10px;background:transparent;color:var(--ink3);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s var(--spring);font-family:inherit;letter-spacing:-.01em}
+.log-tab-btn.on{background:var(--s1);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
-/* ─── SPENT % RING ──────────────────────────── */
-.spent-pct-ring { position:relative; width:46px; height:46px; flex-shrink:0; }
-.spent-pct-ring svg { width:46px; height:46px; transform:rotate(-90deg); }
-.spent-pct-ring .ring-bg { fill:none; stroke:var(--s3); stroke-width:4; }
-.spent-pct-ring .ring-fill { fill:none; stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .6s var(--spring); }
-.spent-pct-label { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+/* ─── CASHFLOW STATEMENT ────────────────────────────── */
+.cf-section{margin-bottom:16px}
+.cf-section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);padding:6px 0 8px;border-bottom:0.5px solid var(--hairline);margin-bottom:4px}
+.cf-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--hairline)}
+.cf-row:last-child{border-bottom:none}
+.cf-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.cf-body{flex:1;min-width:0}
+.cf-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-meta{font-size:11px;color:var(--ink3);margin-top:1px}
+.cf-amt{font-size:14px;font-weight:700;font-feature-settings:"tnum";white-space:nowrap}
+.cf-balance-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;margin-top:8px}
+.cf-balance-label{font-size:12px;font-weight:600;color:var(--ink2)}
+.cf-balance-val{font-size:20px;font-weight:700;letter-spacing:-.02em}
 
-/* ─── LOG TAB SWITCHER ──────────────────────────── */
-.log-tabs { display:flex; background:var(--s2); border-radius:var(--r-sm); padding:3px; gap:3px; margin-bottom:14px; }
-.log-tab-btn {
-  flex:1; padding:8px 4px; border:none; border-radius:10px;
-  background:transparent; color:var(--ink3); font-size:11px;
-  font-weight:600; cursor:pointer; transition:all .2s var(--spring); font-family:inherit;
-}
-.log-tab-btn.on { background:var(--s1); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+/* ─── EDIT MODAL ────────────────────────────── */
+.edit-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.edit-modal-bg.on{display:flex}
+.edit-modal{background:var(--s1);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;box-shadow:0 -8px 40px rgba(0,0,0,.18)}
+.edit-modal-title{font-size:16px;font-weight:700;margin-bottom:18px;text-align:center}
+.edit-modal-grid{display:grid;gap:10px}
+.edit-modal-row{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center}
 
-/* ─── CASHFLOW WATERFALL ──────────────────────────── */
-.cf-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:0.5px solid var(--hairline); }
-.cf-row:last-child { border-bottom:none; }
-.cf-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-.cf-body { flex:1; min-width:0; }
-.cf-label { font-size:13px; font-weight:600; }
-.cf-sub { font-size:11px; color:var(--ink3); margin-top:1px; line-height:1.4; }
-.cf-bar { height:4px; border-radius:2px; margin-top:5px; transition:width .5s var(--spring); max-width:100%; }
-.cf-amt { font-size:15px; font-weight:700; font-feature-settings:"tnum"; text-align:right; }
-.cf-divider { border:none; border-top:0.5px dashed var(--border-strong); margin:4px 0; }
+/* ─── MONTHLY RESET CARD ────────────────────────────── */
+.reset-card{border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;border:0.5px solid var(--border)}
+.reset-card.urgent{background:linear-gradient(135deg,var(--rose-bg),#fff5f5);border-color:rgba(184,101,96,.3)}
+.reset-card.soon{background:linear-gradient(135deg,var(--peach-bg),#fff9f5);border-color:rgba(184,116,64,.25)}
+.reset-card.calm{background:linear-gradient(135deg,var(--sage-bg),#f5fbf7);border-color:rgba(94,138,106,.2)}
+.reset-card-icon{font-size:24px;flex-shrink:0}
+.reset-card-body{flex:1;min-width:0}
+.reset-card-title{font-size:13px;font-weight:700;margin-bottom:1px}
+.reset-card-sub{font-size:11px;color:var(--ink2)}
+.reset-card-btn{padding:8px 13px;border-radius:20px;border:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s var(--ease)}
+.reset-card-btn:active{transform:scale(.94)}
+.reset-card-btn.danger{background:var(--rose-dark);color:white}
+.reset-card-btn.warn{background:var(--peach-dark);color:white}
+.reset-card-btn.muted{background:var(--s3);color:var(--ink2)}
 
-/* ─── FIXED PAYMENT / FUND CONTRIB ITEMS ──────────────────────────── */
-.fp-status-paid { color:var(--sage-dark); font-size:11px; font-weight:700; }
-.fp-status-due  { color:var(--peach-dark); font-size:11px; font-weight:700; }
-.fc-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:0.5px solid var(--hairline); }
-.fc-item:last-child { border-bottom:none; }
+/* ─── SPENT % RING ────────────────────────────── */
+.spent-ring-wrap{position:relative;width:44px;height:44px;flex-shrink:0}
+.spent-ring-wrap svg{width:44px;height:44px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--s3);stroke-width:4}
+.ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .6s var(--spring)}
+.ring-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
 
 /* ─── LOCK SCREEN ──────────────────────────── */
 #lock {
@@ -740,9 +734,9 @@ select.input {
         <div class="stat" style="position:relative">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
             <div class="stat-icon bg-peach" style="margin-bottom:0">📊</div>
-            <div class="spent-pct-ring">
-              <svg viewBox="0 0 46 46"><circle class="ring-bg" cx="23" cy="23" r="19"/><circle class="ring-fill" id="spent-ring" cx="23" cy="23" r="19" stroke="var(--peach-dark)" stroke-dasharray="119.38" stroke-dashoffset="119.38"/></svg>
-              <div class="spent-pct-label" id="spent-ring-pct" style="color:var(--peach-dark)">0%</div>
+            <div class="spent-ring-wrap">
+              <svg viewBox="0 0 44 44"><circle class="ring-bg" cx="22" cy="22" r="18"/><circle class="ring-fill" id="spent-ring" cx="22" cy="22" r="18" stroke="var(--peach-dark)" stroke-dasharray="113.1" stroke-dashoffset="113.1"/></svg>
+              <div class="ring-lbl" id="spent-ring-pct" style="color:var(--peach-dark)">0%</div>
             </div>
           </div>
           <div class="stat-label">Spent This Month</div>
@@ -781,7 +775,6 @@ select.input {
           <div class="card-title">This Month Spending</div>
           <span class="card-action" onclick="goTab('log')">Log expense →</span>
         </div>
-        <div id="dash-bars-summary" style="margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--hairline)"></div>
         <div id="dash-bars"></div>
       </div>
 
@@ -796,17 +789,19 @@ select.input {
     <!-- ═══ LOG EXPENSES ═══ -->
     <div class="pnl" id="pnl-log">
       <div class="mpills" id="log-months"></div>
+
+      <!-- LOG TAB SWITCHER -->
       <div class="log-tabs">
-        <button class="log-tab-btn on" id="ltab-cashflow" onclick="switchLogTab('cashflow')">💰 Cashflow</button>
-        <button class="log-tab-btn" id="ltab-expenses" onclick="switchLogTab('expenses')">🧾 Expenses</button>
-        <button class="log-tab-btn" id="ltab-fixed" onclick="switchLogTab('fixed')">🏠 Fixed</button>
-        <button class="log-tab-btn" id="ltab-invest" onclick="switchLogTab('invest')">📈 Invest</button>
+        <button class="log-tab-btn on" id="ltab-cf"  onclick="switchLogTab('cf')">💸 Flow</button>
+        <button class="log-tab-btn" id="ltab-exp" onclick="switchLogTab('exp')">🧾 Expenses</button>
+        <button class="log-tab-btn" id="ltab-tr"  onclick="switchLogTab('tr')">🔁 Transfers</button>
+        <button class="log-tab-btn" id="ltab-inv" onclick="switchLogTab('inv')">📈 Invest</button>
       </div>
 
-      <!-- CASHFLOW TAB -->
-      <div id="log-pnl-cashflow">
+      <!-- ── CASHFLOW TAB ── -->
+      <div id="log-pnl-cf">
         <div class="card">
-          <div class="card-head"><div class="card-title">Income This Month</div></div>
+          <div class="card-head"><div class="card-title">Income</div></div>
           <div id="income-list"></div>
           <div style="display:grid;gap:10px;margin-top:12px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -817,17 +812,21 @@ select.input {
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><div class="card-title">Cashflow This Month</div></div>
-          <div id="cashflow-waterfall"></div>
+          <div class="card-head"><div class="card-title">Money Flow Statement</div><span id="cf-month-lbl" style="font-size:12px;color:var(--ink3);font-weight:600"></span></div>
+          <div id="cf-statement"></div>
+          <div id="cf-running-bal-log" style="margin-top:12px"></div>
         </div>
       </div>
 
-      <!-- EXPENSES TAB -->
-      <div id="log-pnl-expenses" style="display:none">
+      <!-- ── EXPENSES TAB ── -->
+      <div id="log-pnl-exp" style="display:none">
         <div class="card">
           <div class="card-head"><div class="card-title">Add Expense</div></div>
           <div style="display:grid;gap:10px">
-            <input class="input" id="l-name" placeholder="What did you spend on?">
+            <div style="display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center">
+              <input class="input" id="l-emoji" placeholder="📦" style="text-align:center;font-size:18px;padding:10px 4px">
+              <input class="input" id="l-name" placeholder="What did you spend on?">
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <input class="input" type="number" id="l-amt" placeholder="₹ Amount" inputmode="decimal">
               <select class="input" id="l-cat"></select>
@@ -838,7 +837,7 @@ select.input {
         <div class="card">
           <div class="card-head">
             <div class="card-title" id="log-title">Expenses</div>
-            <span class="card-action" id="log-total" style="color:var(--ink);font-weight:700">₹0</span>
+            <span id="log-total" style="font-size:13px;font-weight:700;color:var(--ink)">₹0</span>
           </div>
           <div id="exp-list"></div>
           <div class="empty" id="exp-empty"><div class="empty-emoji">📝</div><div>No expenses logged yet</div></div>
@@ -849,41 +848,42 @@ select.input {
         </div>
       </div>
 
-      <!-- FIXED COSTS TAB -->
-      <div id="log-pnl-fixed" style="display:none">
+      <!-- ── TRANSFERS TAB ── -->
+      <div id="log-pnl-tr" style="display:none">
         <div class="card">
-          <div class="card-head"><div class="card-title">Log Fixed Cost Payment</div></div>
+          <div class="card-head"><div class="card-title">Log Money Transfer</div></div>
           <div style="display:grid;gap:10px">
-            <select class="input" id="fp-fixed-sel"></select>
+            <input class="input" id="tr-desc" placeholder="Description (e.g. HDFC → Bajaj principal)">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <input class="input" type="number" id="fp-amt" placeholder="₹ Actual paid" inputmode="decimal">
-              <input class="input" type="text" id="fp-note" placeholder="Note (optional)">
+              <input class="input" id="tr-from" placeholder="From account">
+              <input class="input" id="tr-to"   placeholder="To account">
             </div>
-            <button class="btn btn-primary" onclick="addFixedPayment()" style="width:100%">+ Log payment</button>
+            <input class="input" type="number" id="tr-amt" placeholder="₹ Amount" inputmode="decimal">
+            <button class="btn btn-primary" onclick="addTransfer()" style="width:100%">+ Log transfer</button>
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><div class="card-title">Fixed Costs This Month</div></div>
-          <div id="fixed-payments-list"></div>
+          <div class="card-head"><div class="card-title">Transfers This Month</div></div>
+          <div id="transfer-list"></div>
         </div>
       </div>
 
-      <!-- INVESTMENTS TAB -->
-      <div id="log-pnl-invest" style="display:none">
+      <!-- ── INVEST TAB ── -->
+      <div id="log-pnl-inv" style="display:none">
         <div class="card">
           <div class="card-head"><div class="card-title">Log Fund Contribution</div></div>
           <div style="display:grid;gap:10px">
             <select class="input" id="fc-fund-sel"></select>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <input class="input" type="number" id="fc-amt" placeholder="₹ Amount invested" inputmode="decimal">
-              <input class="input" type="text" id="fc-note" placeholder="Note (optional)">
+              <input class="input" type="number" id="fc-amt" placeholder="₹ Amount" inputmode="decimal">
+              <input class="input" id="fc-note" placeholder="Note (optional)">
             </div>
             <button class="btn btn-primary" onclick="addFundContrib()" style="width:100%">+ Log investment</button>
           </div>
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title">Contributions This Month</div></div>
-          <div id="fund-contribs-list"></div>
+          <div id="fc-list"></div>
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title">Fund Progress</div></div>
@@ -891,6 +891,26 @@ select.input {
         </div>
       </div>
     </div>
+
+    <!-- EXPENSE EDIT MODAL -->
+    <div class="edit-modal-bg" id="exp-edit-modal">
+      <div class="edit-modal">
+        <div class="edit-modal-title">Edit Expense</div>
+        <div class="edit-modal-grid">
+          <div class="edit-modal-row">
+            <input class="input" id="ee-emoji" placeholder="📦" style="text-align:center;font-size:18px;padding:10px 4px">
+            <input class="input" id="ee-name" placeholder="Description">
+          </div>
+          <input class="input" type="number" id="ee-amt" placeholder="₹ Amount" inputmode="decimal">
+          <select class="input" id="ee-cat"></select>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+            <button class="btn btn-secondary" onclick="closeExpEdit()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveExpEdit()">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- ═══ GOALS ═══ -->
     <div class="pnl" id="pnl-goals">
@@ -977,8 +997,7 @@ select.input {
         <div class="card-head"><div class="card-title">Your Milestones</div></div>
         <div id="milestones"></div>
       </div>
-
-      <div class="card" style="background:linear-gradient(135deg,var(--lilac-bg),var(--sky-bg));border-color:rgba(128,104,165,.2)">
+      <div class="card" style="background:linear-gradient(135deg,var(--lilac-bg),var(--sky-bg));border-color:rgba(128,104,165,.18)">
         <div class="card-head"><div class="card-title" style="color:var(--lilac-dark)">🔥 FIRE Calculator</div></div>
         <div id="fire-calc-panel"></div>
       </div>
@@ -1174,11 +1193,10 @@ select.input {
         </div>
         <button class="btn btn-danger" onclick="confirmReset()" style="width:100%">Reset all data</button>
       </div>
+
       <div class="setup-group">
         <div class="setup-group-title">Monthly Reset</div>
-        <div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px">
-          Clears this month's log (expenses, income, fixed payments, investments). Budget targets, assets, liabilities, and history are <strong>preserved</strong>. Does not auto-reset — you control it.
-        </div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:12px">Clears this month's log (expenses, income, transfers, investments). Budgets and history are <strong>preserved</strong>. Does not auto-reset — you control it.</div>
         <button class="btn btn-primary" onclick="doMonthlyReset()" style="width:100%">🔄 Reset This Month's Log</button>
       </div>
     </div>
@@ -1191,7 +1209,7 @@ select.input {
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
       Home
     </button>
-    <button class="tab" data-tab="log" onclick="goTab('log')">
+<button class="tab" data-tab="log" onclick="goTab('log')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
       Log
     </button>
@@ -1276,6 +1294,7 @@ const DEFAULTS = {
   ],
   expenses: {},
   incomes: {},
+  transfers: {},
   fixedPayments: {},
   fundContribs: {},
   lastMonthlyReset: null,
@@ -1329,6 +1348,7 @@ try {
   S = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULTS));
 } catch { S = JSON.parse(JSON.stringify(DEFAULTS)); }
 Object.keys(DEFAULTS).forEach(k => { if (!(k in S)) S[k] = DEFAULTS[k]; });
+if (!S.transfers) S.transfers = {};
 if (!S.fixedPayments) S.fixedPayments = {};
 if (!S.fundContribs) S.fundContribs = {};
 if (!('lastMonthlyReset' in S)) S.lastMonthlyReset = null;
@@ -1616,31 +1636,15 @@ function renderDash() {
   document.getElementById('stat-surplus-lbl').textContent = surplus >= 0 ? 'monthly surplus' : 'monthly DEFICIT';
 
   // % ring
-  const spentPct = budget > 0 ? Math.min(100, Math.round(spent / budget * 100)) : 0;
-  const circ = 119.38;
-  const ringEl = document.getElementById('spent-ring');
-  const ringLbl = document.getElementById('spent-ring-pct');
-  if (ringEl) {
-    ringEl.style.strokeDashoffset = circ - (circ * spentPct / 100);
-    ringEl.style.stroke = spent > budget ? 'var(--rose-dark)' : spentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)';
+  { const spentPct = budget > 0 ? Math.min(100,Math.round(spent/budget*100)) : 0;
+    const circ = 113.1;
+    const re = document.getElementById('spent-ring');
+    const rl = document.getElementById('spent-ring-pct');
+    if(re){ re.style.strokeDashoffset = circ-(circ*spentPct/100);
+      re.style.stroke = spent>budget?'var(--rose-dark)':spentPct>75?'var(--peach-dark)':'var(--sage-dark)'; }
+    if(rl){ rl.textContent=spentPct+'%';
+      rl.style.color = spent>budget?'var(--rose-dark)':spentPct>75?'var(--peach-dark)':'var(--sage-dark)'; }
   }
-  if (ringLbl) {
-    ringLbl.textContent = spentPct + '%';
-    ringLbl.style.color = spent > budget ? 'var(--rose-dark)' : spentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)';
-  }
-
-  // Overall spend summary
-  const summaryEl = document.getElementById('dash-bars-summary');
-  if (summaryEl && budget > 0) {
-    const remaining = Math.max(0, budget - spent);
-    summaryEl.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
-      <div style="font-size:13px;font-weight:700">${fmt(spent)} <span style="color:var(--ink3);font-weight:500">of ${fmt(budget)}</span></div>
-      <div style="font-size:12px;font-weight:700;color:${spent > budget ? 'var(--rose-dark)' : 'var(--sage-dark)'}">${spentPct}% · ${fmt(remaining)} left</div>
-    </div>
-    <div class="prog" style="height:8px"><div class="prog-fill" style="width:${spentPct}%;background:${spent > budget ? 'var(--rose-dark)' : spentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)'}"></div></div>`;
-  }
-
-  // Reset reminder
   renderResetCard();
 
   // Funds (4 named buckets)
@@ -1721,16 +1725,12 @@ function renderDash() {
   getMonthExps(m).forEach(e => { catTot[e.catId] = (catTot[e.catId] || 0) + e.amt; });
   document.getElementById('dash-bars').innerHTML = S.cats.map(c => {
     const s = catTot[c.id] || 0;
-    const pct = c.budget > 0 ? Math.min(100, Math.round(s / c.budget * 100)) : 0;
+    const pct = c.budget>0 ? Math.min(100,Math.round(s/c.budget*100)) : 0;
     const over = s > c.budget;
-    const pctBadge = c.budget > 0 ? `<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;background:${over ? 'var(--rose-bg)' : pct > 75 ? 'var(--peach-bg)' : 'var(--sage-bg)'};color:${over ? 'var(--rose-dark)' : pct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)'}">${pct}%</span>` : '';
     return `<div class="bbar">
       <div class="bbar-head">
         <div class="bbar-name"><span class="bbar-emoji">${c.emoji}</span><span>${c.name}</span></div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="bbar-nums" style="color:${over ? 'var(--rose-dark)' : 'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}</div>
-          ${pctBadge}
-        </div>
+        <div class="bbar-nums" style="color:${over ? 'var(--rose-dark)' : 'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}</div>
       </div>
       <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${over ? 'var(--rose-dark)' : c.color}"></div></div>
     </div>`;
@@ -1745,137 +1745,121 @@ function renderDash() {
 // ════════════════════════════════════════════════════════════
 // LOG EXPENSES + INCOMES
 // ════════════════════════════════════════════════════════════
-let currentLogTab = 'cashflow';
+let currentLogTab = 'cf';
 
 function switchLogTab(tab) {
   currentLogTab = tab;
-  ['cashflow','expenses','fixed','invest'].forEach(t => {
-    const btn = document.getElementById('ltab-' + t);
-    const pnl = document.getElementById('log-pnl-' + t);
-    if (btn) btn.classList.toggle('on', t === tab);
-    if (pnl) pnl.style.display = t === tab ? 'block' : 'none';
+  ['cf','exp','tr','inv'].forEach(t => {
+    const btn = document.getElementById('ltab-'+t);
+    const pnl = document.getElementById('log-pnl-'+t);
+    if(btn) btn.classList.toggle('on', t===tab);
+    if(pnl) pnl.style.display = t===tab ? 'block' : 'none';
   });
   renderLog();
 }
 
 function renderLog() {
   const m = S.currentMonth;
-  document.getElementById('log-months').innerHTML = MONTHS_SHORT.map((mn, i) =>
-    `<button class="mpill ${i === m ? 'on' : ''}" onclick="S.currentMonth=${i};save();renderAll()">${mn}</button>`
+  document.getElementById('log-months').innerHTML = MONTHS_SHORT.map((mn,i)=>
+    `<button class="mpill ${i===m?'on':''}" onclick="S.currentMonth=${i};save();renderAll()">${mn}</button>`
   ).join('');
-  ['cashflow','expenses','fixed','invest'].forEach(t => {
-    const pnl = document.getElementById('log-pnl-' + t);
-    if (pnl) pnl.style.display = t === currentLogTab ? 'block' : 'none';
-    const btn = document.getElementById('ltab-' + t);
-    if (btn) btn.classList.toggle('on', t === currentLogTab);
+  ['cf','exp','tr','inv'].forEach(t=>{
+    const p=document.getElementById('log-pnl-'+t);
+    if(p) p.style.display=t===currentLogTab?'block':'none';
+    const b=document.getElementById('ltab-'+t);
+    if(b) b.classList.toggle('on',t===currentLogTab);
   });
-  renderLogCashflow(m);
-  renderLogExpenses(m);
-  renderLogFixed(m);
-  renderLogInvest(m);
+  _renderLogCF(m);
+  _renderLogExp(m);
+  _renderLogTr(m);
+  _renderLogInv(m);
 }
 
-function renderLogCashflow(m) {
+/* ── CASHFLOW TAB ── */
+function _renderLogCF(m) {
   const income = getMonthIncomeTotal(m);
-  const fixedPaid = getMonthFixedTotal(m);
-  const invested = getMonthFundContribTotal(m);
-  const lifestyle = getMonthTotal(m);
-  const budgetFixed = getFixedTotal();
-  const budgetInvest = S.sip || 0;
-  const budgetLifestyle = getLifestyleTotal();
-
-  // Income list
   const incomes = getMonthIncomes(m);
   const incList = document.getElementById('income-list');
-  if (incList) {
-    if (!incomes.length) {
-      incList.innerHTML = '<div style="font-size:13px;color:var(--ink3);padding:8px 0">No income logged yet this month</div>';
+  if(incList) {
+    if(!incomes.length){
+      incList.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px 0">No income logged yet</div>';
     } else {
-      incList.innerHTML = incomes.map(i => `
+      incList.innerHTML = incomes.map(i=>`
         <div class="income-row">
           <span class="income-row-name">💰 ${i.source}</span>
           <span class="income-row-amt">${fmt(i.amt)}</span>
           <button class="icon-btn danger" onclick="confirmDelIncome(${i.id})">
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
           </button>
-        </div>`).join('') + `
-        <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700;border-top:0.5px solid var(--hairline);margin-top:8px">
-          <span>Total income</span><span class="cg" style="font-feature-settings:'tnum'">${fmt(income)}</span>
+        </div>`).join('')+`
+        <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700;border-top:.5px solid var(--hairline);margin-top:8px">
+          <span>Total income</span><span class="cg">${fmt(income)}</span>
         </div>`;
     }
   }
+  _buildCFStatement(m, 'cf-statement');
 
-  // Waterfall
-  const remaining = income - fixedPaid - invested - lifestyle;
-  const wfEl = document.getElementById('cashflow-waterfall');
-  if (!wfEl) return;
+  // Update month label
+  const lbl = document.getElementById('cf-month-lbl');
+  if(lbl) lbl.textContent = MONTHS_LONG[m];
 
-  const rows = [
-    { icon:'💰', bg:'bg-sage', sign:'+', label:'Income received',
-      sub: income > 0 ? 'Logged this month' : 'Log income above ↑',
-      amt: income, color:'var(--sage-dark)',
-      barPct: 100, barColor:'var(--sage-dark)', sub2:'' },
-    { icon:'🏠', bg:'bg-rose', sign:'−', label:'Fixed costs paid',
-      sub: fmt(budgetFixed) + ' budgeted',
-      amt: fixedPaid, color:'var(--rose-dark)',
-      barPct: budgetFixed > 0 ? Math.min(100, Math.round(fixedPaid/budgetFixed*100)) : 0,
-      barColor: fixedPaid > budgetFixed ? 'var(--rose-dark)' : 'var(--peach-dark)',
-      sub2: fixedPaid >= budgetFixed ? '✓ Fully logged' : fmt(budgetFixed-fixedPaid)+' not yet logged' },
-    { icon:'📈', bg:'bg-lilac', sign:'−', label:'Invested in funds',
-      sub: fmt(budgetInvest)+' SIP target',
-      amt: invested, color:'var(--lilac-dark)',
-      barPct: budgetInvest > 0 ? Math.min(100, Math.round(invested/budgetInvest*100)) : 0,
-      barColor: invested >= budgetInvest ? 'var(--sage-dark)' : 'var(--lilac-dark)',
-      sub2: budgetInvest > 0 ? (invested >= budgetInvest ? '✓ SIP target met' : fmt(budgetInvest-invested)+' more to hit SIP') : '' },
-    { icon:'🛍️', bg:'bg-peach', sign:'−', label:'Lifestyle spent',
-      sub: fmt(budgetLifestyle)+' budget · '+(budgetLifestyle > 0 ? Math.round(lifestyle/budgetLifestyle*100) : 0)+'% used',
-      amt: lifestyle, color: lifestyle > budgetLifestyle ? 'var(--rose-dark)' : 'var(--peach-dark)',
-      barPct: budgetLifestyle > 0 ? Math.min(100, Math.round(lifestyle/budgetLifestyle*100)) : 0,
-      barColor: lifestyle > budgetLifestyle ? 'var(--rose-dark)' : 'var(--peach-dark)', sub2:'' },
-  ];
-
-  wfEl.innerHTML = rows.map(r => `
-    <div class="cf-row">
-      <div class="cf-icon ${r.bg}">${r.icon}</div>
-      <div class="cf-body">
-        <div class="cf-label">${r.sign} ${r.label}</div>
-        <div class="cf-sub">${r.sub}${r.sub2 ? ' · <strong>'+r.sub2+'</strong>' : ''}</div>
-        <div class="cf-bar" style="width:${r.barPct}%;background:${r.barColor}"></div>
-      </div>
-      <div class="cf-amt" style="color:${r.color}">${fmt(r.amt)}</div>
-    </div>`).join('') + `
-  <hr class="cf-divider">
-  <div class="cf-row" style="padding-top:6px">
-    <div class="cf-icon ${remaining >= 0 ? 'bg-sage' : 'bg-rose'}">${remaining >= 0 ? '✓' : '⚠'}</div>
-    <div class="cf-body">
-      <div class="cf-label" style="font-size:15px;font-weight:700;color:${remaining >= 0 ? 'var(--sage-dark)' : 'var(--rose-dark)'}">Net remaining</div>
-      <div class="cf-sub">${remaining >= 0 ? 'Unaccounted cash this month' : 'Spending exceeds logged income'}</div>
-    </div>
-    <div class="cf-amt" style="color:${remaining >= 0 ? 'var(--sage-dark)' : 'var(--rose-dark)'};font-size:18px">${remaining < 0 ? '−' : ''}${fmt(Math.abs(remaining))}</div>
-  </div>`;
+  // Running balance in log tab
+  const rb = document.getElementById('cf-running-bal-log');
+  if(rb) {
+    const totalIn  = getMonthIncomeTotal(m);
+    const totalExp = getMonthTotal(m);
+    const totalInv = (S.fundContribs[m]||[]).reduce((a,c)=>a+c.amt,0);
+    const budgetFixed = getFixedTotal();
+    const rows2 = [
+      {label:'Income received',           amt: totalIn,      color:'var(--sage-dark)',  sign:'+'},
+      {label:'Fixed costs (budgeted)',     amt:-budgetFixed,  color:'var(--rose-dark)',  sign:'−'},
+      {label:'Investments logged',         amt:-totalInv,     color:'var(--lilac-dark)', sign:'−'},
+      {label:'Lifestyle expenses',         amt:-totalExp,     color:'var(--peach-dark)', sign:'−'},
+    ];
+    let running2 = 0;
+    rb.innerHTML = '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:8px">Running Balance</div>' +
+      rows2.map(r=>{
+        running2 += r.amt;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:.5px solid var(--hairline)">
+          <div>
+            <div style="font-size:12px;font-weight:600">${r.sign} ${r.label}</div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:1px">After: <strong style="color:${running2>=0?'var(--sage-dark)':'var(--rose-dark)'}">${running2<0?'−':''}${fmt(Math.abs(running2))}</strong></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:${r.color}">${r.sign}${fmt(Math.abs(r.amt))}</div>
+        </div>`;
+      }).join('') +
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;margin-top:8px;background:${running2>=0?'var(--sage-bg)':'var(--rose-bg)'}">
+        <div style="font-size:13px;font-weight:700">Net Position</div>
+        <div style="font-size:18px;font-weight:700;color:${running2>=0?'var(--sage-dark)':'var(--rose-dark)'}">${running2<0?'−':''}${fmt(Math.abs(running2))}</div>
+      </div>`;
+  }
 }
-
-function renderLogExpenses(m) {
-  const logTitle = document.getElementById('log-title');
-  if (logTitle) logTitle.textContent = MONTHS_LONG[m];
-  const sel = document.getElementById('l-cat');
-  if (sel) sel.innerHTML = '<option value="">Category</option>' + S.cats.map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
-  const exps = getMonthExps(m);
-  const empty = document.getElementById('exp-empty');
-  const list = document.getElementById('exp-list');
-  if (list) {
-    if (!exps.length) { list.innerHTML = ''; if (empty) empty.style.display = 'block'; }
+/* ── EXPENSES TAB ── */
+function _renderLogExp(m) {
+  const logTitle=document.getElementById('log-title');
+  if(logTitle) logTitle.textContent=MONTHS_LONG[m];
+  const sel=document.getElementById('l-cat');
+  if(sel) sel.innerHTML='<option value="">Category</option>'+S.cats.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  const exps=getMonthExps(m);
+  const empty=document.getElementById('exp-empty');
+  const list=document.getElementById('exp-list');
+  if(list){
+    if(!exps.length){ list.innerHTML=''; if(empty) empty.style.display='block'; }
     else {
-      if (empty) empty.style.display = 'none';
-      list.innerHTML = [...exps].reverse().map(e => {
-        const cat = S.cats.find(c => c.id === e.catId) || { name:'Other', color:'#888', emoji:'📦' };
+      if(empty) empty.style.display='none';
+      list.innerHTML=[...exps].reverse().map(e=>{
+        const cat=S.cats.find(c=>c.id===e.catId)||{name:'Other',color:'#888',emoji:'📦'};
+        const emoji=e.emoji||cat.emoji;
         return `<div class="exp-item">
           <div class="exp-dot" style="background:${cat.color}"></div>
           <div class="exp-body">
-            <div class="exp-name">${e.name}</div>
-            <div class="exp-meta">${cat.emoji} ${cat.name} · ${e.date || ''}</div>
+            <div class="exp-name">${emoji} ${e.name}</div>
+            <div class="exp-meta">${cat.emoji} ${cat.name} · ${e.date||''}</div>
           </div>
           <div class="exp-amt" style="color:${cat.color}">${fmt(e.amt)}</div>
+          <button class="icon-btn" onclick="openExpEdit(${e.id})" style="color:var(--ink3)" title="Edit">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
           <button class="icon-btn danger" onclick="confirmDelExp(${e.id})">
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
           </button>
@@ -1883,99 +1867,89 @@ function renderLogExpenses(m) {
       }).join('');
     }
   }
-  const total = getMonthTotal(m);
-  const budget = getLifestyleTotal();
-  const logTot = document.getElementById('log-total');
-  if (logTot) { logTot.textContent = fmt(total)+' / '+fmt(budget); logTot.style.color = total > budget ? 'var(--rose-dark)' : 'var(--ink)'; }
-  const catTot = {};
-  exps.forEach(e => { catTot[e.catId] = (catTot[e.catId]||0) + e.amt; });
-  const logBars = document.getElementById('log-bars');
-  if (logBars) logBars.innerHTML = S.cats.map(c => {
-    const s = catTot[c.id] || 0;
-    const pct = c.budget > 0 ? Math.min(100, Math.round(s/c.budget*100)) : 0;
-    const over = s > c.budget;
+  const total=getMonthTotal(m), budget=getLifestyleTotal();
+  const lt=document.getElementById('log-total');
+  if(lt){ lt.textContent=`${fmt(total)} / ${fmt(budget)}`; lt.style.color=total>budget?'var(--rose-dark)':'var(--ink)'; }
+  const catTot={};
+  exps.forEach(e=>{ catTot[e.catId]=(catTot[e.catId]||0)+e.amt; });
+  const lb=document.getElementById('log-bars');
+  if(lb) lb.innerHTML=S.cats.map(c=>{
+    const s=catTot[c.id]||0;
+    const pct=c.budget>0?Math.min(100,Math.round(s/c.budget*100)):0;
+    const over=s>c.budget;
     return `<div class="bbar">
       <div class="bbar-head">
         <div class="bbar-name"><span class="bbar-emoji">${c.emoji}</span><span>${c.name}</span></div>
-        <div class="bbar-nums" style="color:${over ? 'var(--rose-dark)' : 'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}${over ? ' ⚠️' : ''}</div>
+        <div class="bbar-nums" style="color:${over?'var(--rose-dark)':'var(--ink3)'}">${fmt(s)}/${fmt(c.budget)}${over?' ⚠️':''}</div>
       </div>
-      <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${over ? 'var(--rose-dark)' : c.color}"></div></div>
+      <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${over?'var(--rose-dark)':c.color}"></div></div>
     </div>`;
   }).join('');
 }
 
-function renderLogFixed(m) {
-  const sel = document.getElementById('fp-fixed-sel');
-  if (sel) sel.innerHTML = '<option value="">Select fixed cost…</option>' + S.fixed.map(f => `<option value="${f.id}">${f.emoji||'📌'} ${f.name} (${fmt(f.amt)})</option>`).join('');
-  const payments = S.fixedPayments[m] || [];
-  const paidByFixed = {};
-  payments.forEach(p => { paidByFixed[p.fixedId] = (paidByFixed[p.fixedId]||0) + p.amt; });
-  const listEl = document.getElementById('fixed-payments-list');
-  if (!listEl) return;
-  listEl.innerHTML = S.fixed.map(f => {
-    const paid = paidByFixed[f.id] || 0;
-    const pct = f.amt > 0 ? Math.min(100, Math.round(paid/f.amt*100)) : 0;
-    const over = paid > f.amt, done = paid >= f.amt;
-    const itemPmts = payments.filter(p => p.fixedId === f.id);
-    return `<div style="padding:12px 0;border-bottom:0.5px solid var(--hairline)">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">${f.emoji||'📌'}</span>
-        <div style="flex:1"><div style="font-size:13px;font-weight:700">${f.name}</div>
-          <div style="font-size:11px;color:var(--ink3)">Budget ${fmt(f.amt)}</div></div>
-        <div style="text-align:right">
-          <div style="font-size:14px;font-weight:700;color:${over ? 'var(--rose-dark)' : done ? 'var(--sage-dark)' : 'var(--ink)'}">${fmt(paid)}</div>
-          <div class="${done ? 'fp-status-paid' : 'fp-status-due'}">${done ? '✓ Paid' : over ? '⚠ Over' : 'Due'}</div>
+/* ── TRANSFERS TAB ── */
+function _renderLogTr(m) {
+  const transfers=S.transfers[m]||[];
+  const el=document.getElementById('transfer-list');
+  if(!el) return;
+  if(!transfers.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px 0">No transfers logged this month</div>';
+  } else {
+    el.innerHTML=[...transfers].reverse().map(t=>`
+      <div class="cf-row">
+        <div class="cf-icon bg-sky">🔁</div>
+        <div class="cf-body">
+          <div class="cf-name">${t.desc}</div>
+          <div class="cf-meta">${t.from} → ${t.to} · ${t.date}</div>
         </div>
-      </div>
-      <div class="prog" style="height:5px;margin-top:6px"><div class="prog-fill" style="width:${pct}%;background:${over ? 'var(--rose-dark)' : done ? 'var(--sage-dark)' : 'var(--peach-dark)'}"></div></div>
-      ${itemPmts.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 0;margin-top:3px;border-top:0.5px solid var(--hairline)">
-        <div style="flex:1;font-size:11px;color:var(--ink3)">${p.note||'Payment'} · ${p.date}</div>
-        <div style="font-size:12px;font-weight:700;color:var(--rose-dark)">${fmt(p.amt)}</div>
-        <button class="icon-btn danger" style="width:24px;height:24px" onclick="delFixedPayment(${p.id})">
-          <svg viewBox="0 0 24 24" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
-        </button></div>`).join('')}
-    </div>`;
-  }).join('') + `<div style="display:flex;justify-content:space-between;padding:12px 0 0;font-size:14px;font-weight:700;border-top:0.5px solid var(--border-strong);margin-top:6px">
-    <span>Total paid</span><span style="color:var(--rose-dark)">${fmt(Object.values(paidByFixed).reduce((a,b)=>a+b,0))} / ${fmt(getFixedTotal())}</span>
-  </div>`;
+        <div class="cf-amt" style="color:var(--sky-dark)">${fmt(t.amt)}</div>
+        <button class="icon-btn danger" onclick="delTransfer(${t.id})">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>`).join('');
+  }
 }
 
-function renderLogInvest(m) {
-  const sel = document.getElementById('fc-fund-sel');
-  if (sel) sel.innerHTML = '<option value="">Select fund…</option>' + S.funds.map(f => `<option value="${f.id}">${f.emoji} ${f.name} (${fmt(f.amt)})</option>`).join('');
-  const contribs = S.fundContribs[m] || [];
-  const clEl = document.getElementById('fund-contribs-list');
-  if (clEl) {
-    if (!contribs.length) { clEl.innerHTML = '<div style="font-size:13px;color:var(--ink3);padding:8px 0">No investments logged this month</div>'; }
+/* ── INVEST TAB ── */
+function _renderLogInv(m) {
+  const sel=document.getElementById('fc-fund-sel');
+  if(sel) sel.innerHTML='<option value="">Select fund…</option>'+S.funds.map(f=>`<option value="${f.id}">${f.emoji} ${f.name} (${fmt(f.amt)})</option>`).join('');
+  const contribs=S.fundContribs[m]||[];
+  const cl=document.getElementById('fc-list');
+  if(cl){
+    if(!contribs.length){ cl.innerHTML='<div style="font-size:13px;color:var(--ink3);padding:8px 0">No investments logged this month</div>'; }
     else {
-      clEl.innerHTML = [...contribs].reverse().map(c => {
-        const fund = S.funds.find(f => f.id === c.fundId) || { name:'Unknown', emoji:'💼', color:'sage' };
-        return `<div class="fc-item">
-          <div style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--${fund.color}-bg);flex-shrink:0">${fund.emoji}</div>
-          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">${fund.name}</div>
-            <div style="font-size:11px;color:var(--ink3)">${c.note||'Investment'} · ${c.date}</div></div>
-          <div style="font-size:14px;font-weight:700;color:var(--sage-dark)">${fmt(c.amt)}</div>
+      cl.innerHTML=[...contribs].reverse().map(c=>{
+        const fund=S.funds.find(f=>f.id===c.fundId)||{name:'Unknown',emoji:'💼',color:'sage'};
+        return `<div class="cf-row">
+          <div class="cf-icon" style="background:var(--${fund.color}-bg)">${fund.emoji}</div>
+          <div class="cf-body">
+            <div class="cf-name">${fund.name}</div>
+            <div class="cf-meta">${c.note||'Investment'} · ${c.date}</div>
+          </div>
+          <div class="cf-amt cg">${fmt(c.amt)}</div>
           <button class="icon-btn danger" onclick="delFundContrib(${c.id})">
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
           </button>
         </div>`;
       }).join('');
-      clEl.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700;border-top:0.5px solid var(--hairline);margin-top:8px">
+      cl.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700;border-top:.5px solid var(--hairline);margin-top:8px">
         <span>Total invested</span><span class="cg">${fmt(contribs.reduce((a,c)=>a+c.amt,0))}</span>
       </div>`;
     }
   }
-  const cByFund = {};
-  contribs.forEach(c => { cByFund[c.fundId] = (cByFund[c.fundId]||0)+c.amt; });
-  const pEl = document.getElementById('fund-progress-list');
-  if (pEl) pEl.innerHTML = S.funds.map(f => {
-    const thisMonth = cByFund[f.id] || 0;
-    const pct = f.target > 0 ? Math.min(100, Math.round(f.amt/f.target*100)) : 0;
-    return `<div style="padding:10px 0;border-bottom:0.5px solid var(--hairline)">
+  const cByFund={};
+  contribs.forEach(c=>{ cByFund[c.fundId]=(cByFund[c.fundId]||0)+c.amt; });
+  const pe=document.getElementById('fund-progress-list');
+  if(pe) pe.innerHTML=S.funds.map(f=>{
+    const tm=cByFund[f.id]||0;
+    const pct=f.target>0?Math.min(100,Math.round(f.amt/f.target*100)):0;
+    return `<div style="padding:10px 0;border-bottom:.5px solid var(--hairline)">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
         <div style="width:30px;height:30px;border-radius:8px;background:var(--${f.color}-bg);display:flex;align-items:center;justify-content:center;font-size:14px">${f.emoji}</div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:700">${f.name}</div>
-          <div style="font-size:11px;color:var(--ink3)">${fmt(f.amt)} of ${fmt(f.target)} · ${pct}%${thisMonth > 0 ? ' · <span style="color:var(--sage-dark);font-weight:700">+'+fmt(thisMonth)+' this month</span>' : ''}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700">${f.name}</div>
+          <div style="font-size:11px;color:var(--ink3)">${fmt(f.amt)} of ${fmt(f.target)} · ${pct}%${tm>0?' · <span style="color:var(--sage-dark);font-weight:700">+'+fmt(tm)+' this month</span>':''}</div>
         </div>
       </div>
       <div class="prog"><div class="prog-fill" style="width:${pct}%;background:var(--${f.color}-dark)"></div></div>
@@ -1988,16 +1962,18 @@ function addExp() {
   const name = document.getElementById('l-name').value.trim();
   const amt = parseFloat(document.getElementById('l-amt').value);
   const catId = parseInt(document.getElementById('l-cat').value);
+  const emoji = (document.getElementById('l-emoji')||{}).value || '';
   if (!name || !amt || !catId) return;
   if (!S.expenses[S.currentMonth]) S.expenses[S.currentMonth] = [];
   S.expenses[S.currentMonth].push({
-    id: Date.now(), name, catId, amt,
-    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    id: Date.now(), name, catId, amt, emoji: emoji.trim(),
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
   });
   save();
   document.getElementById('l-name').value = '';
   document.getElementById('l-amt').value = '';
   document.getElementById('l-cat').value = '';
+  const le = document.getElementById('l-emoji'); if(le) le.value='';
   renderAll();
 }
 
@@ -2008,7 +1984,7 @@ function addIncome() {
   if (!S.incomes[S.currentMonth]) S.incomes[S.currentMonth] = [];
   S.incomes[S.currentMonth].push({
     id: Date.now(), source, amt,
-    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
   });
   save();
   document.getElementById('inc-source').value = '';
@@ -2096,14 +2072,7 @@ function renderGoals() {
   }).join('');
 }
 
-function goalMonthsLeft(deadline) {
-  if (!deadline) return 0;
-  const [y, m] = deadline.split('-').map(Number);
-  const target = new Date(y, m - 1, 1);
-  const now = new Date(); now.setDate(1); now.setHours(0,0,0,0); // real current date
-  const diff = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
-  return Math.max(0, diff);
-}
+// goalMonthsLeft moved above (uses real date)
 
 function formatDeadline(deadline) {
   if (!deadline) return 'No date';
@@ -2993,11 +2962,11 @@ function exportData() {
   Object.entries(S.incomes || {}).forEach(([m, list]) => {
     list.forEach(i => rows.push(['INCOME',`${m}-${i.id}`,i.source,'',i.amt,'',i.date||'',m]));
   });
-  // FIXED PAYMENTS
-  Object.entries(S.fixedPayments || {}).forEach(([m, list]) => {
-    list.forEach(p => rows.push(['FIXEDPAY',`${m}-${p.id}`,p.note||'','',p.amt,p.fixedId,p.date||'',m]));
+  // TRANSFERS
+  Object.entries(S.transfers || {}).forEach(([m, list]) => {
+    list.forEach(t => rows.push(['TRANSFER',`${m}-${t.id}`,t.desc,'',t.amt,t.from,t.to,m]));
   });
-  // FUND CONTRIBS
+  // FUNDCONTRIBS
   Object.entries(S.fundContribs || {}).forEach(([m, list]) => {
     list.forEach(c => rows.push(['FUNDCONTRIB',`${m}-${c.id}`,c.note||'','',c.amt,c.fundId,c.date||'',m]));
   });
@@ -3052,7 +3021,7 @@ function handleCSVImport(event) {
         const newS = JSON.parse(JSON.stringify(DEFAULTS));
         newS.fixed = []; newS.cats = []; newS.assets = []; newS.liabilities = [];
         newS.funds = []; newS.goals = []; newS.expenses = {}; newS.incomes = {};
-        newS.fixedPayments = {}; newS.fundContribs = {}; newS.lastMonthlyReset = null;
+        newS.transfers = {}; newS.fundContribs = {}; newS.lastMonthlyReset = null;
 
         for (let i = 1; i < lines.length; i++) {
           const cols = parseCSVLine(lines[i]);
@@ -3086,11 +3055,11 @@ function handleCSVImport(event) {
             if (!newS.incomes[monthIdx]) newS.incomes[monthIdx] = [];
             const idParts = cols[1].split('-');
             newS.incomes[monthIdx].push({ id: parseInt(idParts[idParts.length-1]) || Date.now()+Math.random(), source: cols[2], amt: parseFloat(cols[4])||0, date: cols[6]||'' });
-          } else if (section === 'FIXEDPAY') {
+          } else if (section === 'TRANSFER') {
             const monthIdx = cols[7];
-            if (!newS.fixedPayments[monthIdx]) newS.fixedPayments[monthIdx] = [];
+            if (!newS.transfers[monthIdx]) newS.transfers[monthIdx] = [];
             const idParts = cols[1].split('-');
-            newS.fixedPayments[monthIdx].push({ id: parseInt(idParts[idParts.length-1]) || Date.now()+Math.random(), note: cols[2], amt: parseFloat(cols[4])||0, fixedId: parseInt(cols[5])||0, date: cols[6]||'' });
+            newS.transfers[monthIdx].push({ id: parseInt(idParts[idParts.length-1]) || Date.now()+Math.random(), desc: cols[2], amt: parseFloat(cols[4])||0, from: cols[5]||'', to: cols[6]||'', date:'' });
           } else if (section === 'FUNDCONTRIB') {
             const monthIdx = cols[7];
             if (!newS.fundContribs[monthIdx]) newS.fundContribs[monthIdx] = [];
@@ -3139,127 +3108,288 @@ function renderAll() {
 // ════════════════════════════════════════════════════════════
 
 // ════════════════════════════════════════════════════════════
-// LOG HELPERS — fixed payments + fund contributions
+// CASHFLOW STATEMENT BUILDER
 // ════════════════════════════════════════════════════════════
-function getMonthFixedTotal(m) { return (S.fixedPayments[m]||[]).reduce((a,p)=>a+p.amt,0); }
-function getMonthFundContribTotal(m) { return (S.fundContribs[m]||[]).reduce((a,c)=>a+c.amt,0); }
+function _buildCFStatement(m, targetId) {
+  const el = document.getElementById(targetId);
+  if(!el) return;
 
-function addFixedPayment() {
-  const fixedId = parseInt(document.getElementById('fp-fixed-sel').value);
-  const amt = parseFloat(document.getElementById('fp-amt').value);
-  const note = document.getElementById('fp-note').value.trim();
-  if (!fixedId || !amt) return;
-  const m = S.currentMonth;
-  if (!S.fixedPayments[m]) S.fixedPayments[m] = [];
-  S.fixedPayments[m].push({ id:Date.now(), fixedId, amt, note,
-    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}) });
-  document.getElementById('fp-fixed-sel').value = '';
-  document.getElementById('fp-amt').value = '';
-  document.getElementById('fp-note').value = '';
-  save(); renderAll();
+  const incomes    = getMonthIncomes(m);
+  const expenses   = getMonthExps(m);
+  const transfers  = S.transfers[m] || [];
+  const contribs   = S.fundContribs[m] || [];
+
+  const totalIn   = incomes.reduce((a,i)=>a+i.amt,0);
+  const totalExp  = expenses.reduce((a,e)=>a+e.amt,0);
+  const totalInv  = contribs.reduce((a,c)=>a+c.amt,0);
+  const totalTr   = transfers.reduce((a,t)=>a+t.amt,0);
+
+  // Build chronological event list
+  const events = [
+    ...incomes.map(i=>({type:'income',  label:i.source, amt:i.amt, date:i.date, icon:'💰', color:'var(--sage-dark)', bg:'bg-sage', sign:'+'})),
+    ...expenses.map(e=>{
+      const cat=S.cats.find(c=>c.id===e.catId)||{emoji:'📦',color:'#888'};
+      return {type:'expense', label:e.name, amt:e.amt, date:e.date, icon:e.emoji||cat.emoji, color:'var(--rose-dark)', bg:'bg-rose', sign:'−', cat:cat.name};
+    }),
+    ...transfers.map(t=>({type:'transfer', label:t.desc, amt:t.amt, date:t.date, icon:'🔁', color:'var(--sky-dark)', bg:'bg-sky', sign:'↕', sub:`${t.from} → ${t.to}`})),
+    ...contribs.map(c=>{
+      const fund=S.funds.find(f=>f.id===c.fundId)||{name:'Fund',emoji:'📈',color:'lilac'};
+      return {type:'invest', label:fund.name, amt:c.amt, date:c.date, icon:fund.emoji, color:'var(--lilac-dark)', bg:'bg-lilac', sign:'↑', sub:c.note||'Investment'};
+    }),
+  ];
+
+  const net = totalIn - totalExp - totalInv;
+
+  if(!events.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--ink3);padding:12px 0;text-align:center">No entries this month yet</div>';
+    return;
+  }
+
+  let html = '';
+
+  // Section: INFLOWS
+  if(incomes.length) {
+    html += `<div class="cf-section"><div class="cf-section-head">+ INFLOWS</div>`;
+    html += incomes.map(i=>`
+      <div class="cf-row">
+        <div class="cf-icon bg-sage">💰</div>
+        <div class="cf-body"><div class="cf-name">${i.source}</div><div class="cf-meta">${i.date||''}</div></div>
+        <div class="cf-amt" style="color:var(--sage-dark)">+${fmt(i.amt)}</div>
+      </div>`).join('');
+    html += `<div class="cf-balance-row" style="background:var(--sage-bg)">
+      <span class="cf-balance-label">Total Income</span>
+      <span class="cf-balance-val" style="color:var(--sage-dark)">+${fmt(totalIn)}</span>
+    </div></div>`;
+  }
+
+  // Section: OUTFLOWS — Expenses
+  if(expenses.length) {
+    html += `<div class="cf-section"><div class="cf-section-head">− LIFESTYLE EXPENSES</div>`;
+    html += [...expenses].reverse().map(e=>{
+      const cat=S.cats.find(c=>c.id===e.catId)||{name:'Other',emoji:'📦',color:'#888'};
+      return `<div class="cf-row">
+        <div class="cf-icon" style="background:${cat.color}22;color:${cat.color};font-size:14px">${e.emoji||cat.emoji}</div>
+        <div class="cf-body"><div class="cf-name">${e.name}</div><div class="cf-meta">${cat.name} · ${e.date||''}</div></div>
+        <div class="cf-amt" style="color:var(--rose-dark)">−${fmt(e.amt)}</div>
+      </div>`;
+    }).join('');
+    html += `<div class="cf-balance-row" style="background:var(--rose-bg)">
+      <span class="cf-balance-label">Total Expenses</span>
+      <span class="cf-balance-val" style="color:var(--rose-dark)">−${fmt(totalExp)}</span>
+    </div></div>`;
+  }
+
+  // Section: Investments
+  if(contribs.length) {
+    html += `<div class="cf-section"><div class="cf-section-head">↑ INVESTMENTS</div>`;
+    html += contribs.map(c=>{
+      const fund=S.funds.find(f=>f.id===c.fundId)||{name:'Fund',emoji:'📈',color:'lilac'};
+      return `<div class="cf-row">
+        <div class="cf-icon" style="background:var(--${fund.color}-bg)">${fund.emoji}</div>
+        <div class="cf-body"><div class="cf-name">${fund.name}</div><div class="cf-meta">${c.note||'Investment'} · ${c.date}</div></div>
+        <div class="cf-amt" style="color:var(--lilac-dark)">↑${fmt(c.amt)}</div>
+      </div>`;
+    }).join('');
+    html += `<div class="cf-balance-row" style="background:var(--lilac-bg)">
+      <span class="cf-balance-label">Total Invested</span>
+      <span class="cf-balance-val" style="color:var(--lilac-dark)">↑${fmt(totalInv)}</span>
+    </div></div>`;
+  }
+
+  // Section: Transfers
+  if(transfers.length) {
+    html += `<div class="cf-section"><div class="cf-section-head">↕ MONEY TRANSFERS</div>`;
+    html += transfers.map(t=>`
+      <div class="cf-row">
+        <div class="cf-icon bg-sky">🔁</div>
+        <div class="cf-body"><div class="cf-name">${t.desc}</div><div class="cf-meta">${t.from} → ${t.to} · ${t.date}</div></div>
+        <div class="cf-amt" style="color:var(--sky-dark)">${fmt(t.amt)}</div>
+      </div>`).join('');
+    html += `<div class="cf-balance-row" style="background:var(--sky-bg)">
+      <span class="cf-balance-label">Total Transferred</span>
+      <span class="cf-balance-val" style="color:var(--sky-dark)">${fmt(totalTr)}</span>
+    </div></div>`;
+  }
+
+  // NET BALANCE
+  html += `<div class="cf-balance-row" style="background:${net>=0?'var(--sage-bg)':'var(--rose-bg)'};margin-top:8px;border-radius:14px;padding:16px">
+    <div>
+      <div class="cf-balance-label" style="font-size:13px;font-weight:700">Net Remaining</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px">${net>=0?'Unallocated cash':'Spending exceeds income logged'}</div>
+    </div>
+    <div class="cf-balance-val" style="color:${net>=0?'var(--sage-dark)':'var(--rose-dark)'};font-size:22px">${net<0?'−':''}${fmt(Math.abs(net))}</div>
+  </div>`;
+
+  el.innerHTML = html;
 }
 
-function delFixedPayment(id) {
+// ════════════════════════════════════════════════════════════
+// CASHFLOW TAB (full page)
+// ════════════════════════════════════════════════════════════
+function renderCashflow() {
   const m = S.currentMonth;
-  confirmAction('Delete payment?', 'Remove this fixed cost payment.', () => {
-    S.fixedPayments[m] = (S.fixedPayments[m]||[]).filter(p => p.id !== id);
+  const cfMonths = document.getElementById('cf-months');
+  if(cfMonths) cfMonths.innerHTML = MONTHS_SHORT.map((mn,i)=>
+    `<button class="mpill ${i===m?'on':''}" onclick="S.currentMonth=${i};save();renderAll()">${mn}</button>`
+  ).join('');
+  const lbl = document.getElementById('cf-month-label');
+  if(lbl) lbl.textContent = MONTHS_LONG[m];
+
+  _buildCFStatement(m, 'cf-full-statement');
+
+  // Running balance breakdown
+  const rb = document.getElementById('cf-running-bal');
+  if(!rb) return;
+  const totalIn  = getMonthIncomeTotal(m);
+  const totalExp = getMonthTotal(m);
+  const totalInv = (S.fundContribs[m]||[]).reduce((a,c)=>a+c.amt,0);
+  const budgetFixed = getFixedTotal();
+
+  const rows = [
+    {label:'Income received', amt:totalIn,  color:'var(--sage-dark)', sign:'+'},
+    {label:'Fixed costs (budgeted)', amt:-budgetFixed, color:'var(--rose-dark)', sign:'−'},
+    {label:'Investments logged', amt:-totalInv, color:'var(--lilac-dark)', sign:'−'},
+    {label:'Lifestyle expenses', amt:-totalExp, color:'var(--peach-dark)', sign:'−'},
+  ];
+  let running = 0;
+  rb.innerHTML = rows.map(r=>{
+    running += r.amt;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid var(--hairline)">
+      <div>
+        <div style="font-size:13px;font-weight:600">${r.sign} ${r.label}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:1px">Balance after: <strong style="color:${running>=0?'var(--sage-dark)':'var(--rose-dark)'}">${running<0?'−':''}${fmt(Math.abs(running))}</strong></div>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:${r.color}">${r.sign}${fmt(Math.abs(r.amt))}</div>
+    </div>`;
+  }).join('') + `<div class="cf-balance-row" style="background:${running>=0?'var(--sage-bg)':'var(--rose-bg)'};margin-top:8px">
+    <div><div style="font-size:13px;font-weight:700">Estimated Net Position</div><div style="font-size:11px;color:var(--ink3)">Income minus all obligations</div></div>
+    <div class="cf-balance-val" style="color:${running>=0?'var(--sage-dark)':'var(--rose-dark)'}">${running<0?'−':''}${fmt(Math.abs(running))}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+// TRANSFERS
+// ════════════════════════════════════════════════════════════
+function addTransfer() {
+  const desc = document.getElementById('tr-desc').value.trim();
+  const from = document.getElementById('tr-from').value.trim();
+  const to   = document.getElementById('tr-to').value.trim();
+  const amt  = parseFloat(document.getElementById('tr-amt').value);
+  if(!desc || !amt) return;
+  const m = S.currentMonth;
+  if(!S.transfers[m]) S.transfers[m]=[];
+  S.transfers[m].push({ id:Date.now(), desc, from:from||'—', to:to||'—', amt,
+    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}) });
+  ['tr-desc','tr-from','tr-to','tr-amt'].forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
+  save(); renderAll();
+}
+function delTransfer(id) {
+  const m=S.currentMonth;
+  confirmAction('Delete transfer?','Remove this transfer entry.',()=>{
+    S.transfers[m]=(S.transfers[m]||[]).filter(t=>t.id!==id);
     save(); renderAll();
   });
 }
 
+// ════════════════════════════════════════════════════════════
+// FUND CONTRIBUTIONS
+// ════════════════════════════════════════════════════════════
 function addFundContrib() {
-  const fundId = parseInt(document.getElementById('fc-fund-sel').value);
-  const amt = parseFloat(document.getElementById('fc-amt').value);
-  const note = document.getElementById('fc-note').value.trim();
-  if (!fundId || !amt) return;
-  const m = S.currentMonth;
-  const fund = S.funds.find(f => f.id === fundId);
-  if (fund) fund.amt += amt;
-  if (!S.fundContribs[m]) S.fundContribs[m] = [];
-  S.fundContribs[m].push({ id:Date.now(), fundId, amt, note,
+  const fundId=parseInt(document.getElementById('fc-fund-sel').value);
+  const amt=parseFloat(document.getElementById('fc-amt').value);
+  const note=(document.getElementById('fc-note')||{}).value||'';
+  if(!fundId||!amt) return;
+  const m=S.currentMonth;
+  const fund=S.funds.find(f=>f.id===fundId);
+  if(fund) fund.amt+=amt;
+  if(!S.fundContribs[m]) S.fundContribs[m]=[];
+  S.fundContribs[m].push({ id:Date.now(), fundId, amt, note:note.trim(),
     date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}) });
-  document.getElementById('fc-fund-sel').value = '';
-  document.getElementById('fc-amt').value = '';
-  document.getElementById('fc-note').value = '';
+  document.getElementById('fc-fund-sel').value='';
+  document.getElementById('fc-amt').value='';
+  const fn=document.getElementById('fc-note'); if(fn) fn.value='';
   save(); renderAll();
 }
-
 function delFundContrib(id) {
-  const m = S.currentMonth;
-  const contrib = (S.fundContribs[m]||[]).find(c => c.id === id);
-  if (!contrib) return;
-  confirmAction('Delete investment?', `Remove ${fmt(contrib.amt)} — fund balance will decrease.`, () => {
-    const fund = S.funds.find(f => f.id === contrib.fundId);
-    if (fund) fund.amt = Math.max(0, fund.amt - contrib.amt);
-    S.fundContribs[m] = (S.fundContribs[m]||[]).filter(c => c.id !== id);
+  const m=S.currentMonth;
+  const c=(S.fundContribs[m]||[]).find(x=>x.id===id);
+  if(!c) return;
+  confirmAction('Delete investment?',`Remove ${fmt(c.amt)} — fund balance will decrease.`,()=>{
+    const fund=S.funds.find(f=>f.id===c.fundId);
+    if(fund) fund.amt=Math.max(0,fund.amt-c.amt);
+    S.fundContribs[m]=(S.fundContribs[m]||[]).filter(x=>x.id!==id);
     save(); renderAll();
   });
+}
+
+// ════════════════════════════════════════════════════════════
+// EXPENSE EDIT
+// ════════════════════════════════════════════════════════════
+let _editExpId = null;
+function openExpEdit(id) {
+  const m=S.currentMonth;
+  const exp=(S.expenses[m]||[]).find(e=>e.id===id);
+  if(!exp) return;
+  _editExpId=id;
+  const catSel=document.getElementById('ee-cat');
+  if(catSel) catSel.innerHTML='<option value="">Category</option>'+S.cats.map(c=>`<option value="${c.id}" ${c.id===exp.catId?'selected':''}>${c.emoji} ${c.name}</option>`).join('');
+  const en=document.getElementById('ee-name'); if(en) en.value=exp.name;
+  const ea=document.getElementById('ee-amt');  if(ea) ea.value=exp.amt;
+  const ee=document.getElementById('ee-emoji'); if(ee) ee.value=exp.emoji||'';
+  document.getElementById('exp-edit-modal').classList.add('on');
+}
+function closeExpEdit() {
+  document.getElementById('exp-edit-modal').classList.remove('on');
+  _editExpId=null;
+}
+function saveExpEdit() {
+  if(!_editExpId) return;
+  const m=S.currentMonth;
+  const exp=(S.expenses[m]||[]).find(e=>e.id===_editExpId);
+  if(!exp) return;
+  const name=(document.getElementById('ee-name')||{}).value||'';
+  const amt=parseFloat((document.getElementById('ee-amt')||{}).value)||0;
+  const catId=parseInt((document.getElementById('ee-cat')||{}).value)||exp.catId;
+  const emoji=(document.getElementById('ee-emoji')||{}).value||'';
+  if(name) exp.name=name.trim();
+  if(amt>0) exp.amt=amt;
+  exp.catId=catId;
+  exp.emoji=emoji.trim();
+  closeExpEdit();
+  save(); renderAll();
 }
 
 // ════════════════════════════════════════════════════════════
 // MONTHLY RESET
 // ════════════════════════════════════════════════════════════
 function renderResetCard() {
-  const el = document.getElementById('dash-reset-card');
-  if (!el) return;
-  const now = new Date();
-  const day = now.getDate();
-  const daysLeft = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate() - day;
-  const monthKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const resetDone = S.lastMonthlyReset === monthKey;
-  const monthName = now.toLocaleDateString('en-IN',{month:'long'});
-
-  if (day === 1 && !resetDone) {
-    el.innerHTML = `<div class="reset-card urgent">
-      <div class="reset-card-icon">🔄</div>
-      <div class="reset-card-body">
-        <div class="reset-card-title" style="color:var(--rose-dark)">New month — reset your log!</div>
-        <div class="reset-card-sub">Clear last month's entries to start fresh</div>
-      </div>
-      <button class="reset-card-btn danger" onclick="doMonthlyReset()">Reset now</button>
-    </div>`;
-  } else if (resetDone) {
-    el.innerHTML = `<div class="reset-card calm">
-      <div class="reset-card-icon">✅</div>
-      <div class="reset-card-body">
-        <div class="reset-card-title" style="color:var(--sage-dark)">Month reset done</div>
-        <div class="reset-card-sub">${daysLeft} days left in ${monthName}</div>
-      </div>
-    </div>`;
-  } else if (daysLeft <= 5) {
-    el.innerHTML = `<div class="reset-card soon">
-      <div class="reset-card-icon">📅</div>
-      <div class="reset-card-body">
-        <div class="reset-card-title" style="color:var(--peach-dark)">${daysLeft} days to month end</div>
-        <div class="reset-card-sub">Reset early to start fresh? Budgets preserved.</div>
-      </div>
-      <button class="reset-card-btn warn" onclick="doMonthlyReset()">Reset early</button>
-    </div>`;
+  const el=document.getElementById('dash-reset-card');
+  if(!el) return;
+  const now=new Date();
+  const day=now.getDate();
+  const daysLeft=new Date(now.getFullYear(),now.getMonth()+1,0).getDate()-day;
+  const mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const done=S.lastMonthlyReset===mk;
+  const mname=now.toLocaleDateString('en-IN',{month:'long'});
+  if(day===1&&!done){
+    el.innerHTML=`<div class="reset-card urgent"><div class="reset-card-icon">🔄</div><div class="reset-card-body"><div class="reset-card-title" style="color:var(--rose-dark)">New month — reset your log!</div><div class="reset-card-sub">Clear last month's entries to start fresh</div></div><button class="reset-card-btn danger" onclick="doMonthlyReset()">Reset now</button></div>`;
+  } else if(done){
+    el.innerHTML=`<div class="reset-card calm"><div class="reset-card-icon">✅</div><div class="reset-card-body"><div class="reset-card-title" style="color:var(--sage-dark)">Month reset done</div><div class="reset-card-sub">${daysLeft} days left in ${mname}</div></div></div>`;
+  } else if(daysLeft<=5){
+    el.innerHTML=`<div class="reset-card soon"><div class="reset-card-icon">📅</div><div class="reset-card-body"><div class="reset-card-title" style="color:var(--peach-dark)">${daysLeft} days to month end</div><div class="reset-card-sub">Reset early? Budgets are preserved.</div></div><button class="reset-card-btn warn" onclick="doMonthlyReset()">Reset early</button></div>`;
   } else {
-    el.innerHTML = `<div class="reset-card calm">
-      <div class="reset-card-icon">📆</div>
-      <div class="reset-card-body">
-        <div class="reset-card-title" style="color:var(--sage-dark)">${daysLeft} days to month reset</div>
-        <div class="reset-card-sub">Reset clears log · preserves budgets & history</div>
-      </div>
-      <button class="reset-card-btn muted" onclick="doMonthlyReset()">Reset</button>
-    </div>`;
+    el.innerHTML=`<div class="reset-card calm"><div class="reset-card-icon">📆</div><div class="reset-card-body"><div class="reset-card-title" style="color:var(--sage-dark)">${daysLeft} days to month reset</div><div class="reset-card-sub">Reset clears log · preserves budgets & history</div></div><button class="reset-card-btn muted" onclick="doMonthlyReset()">Reset</button></div>`;
   }
 }
-
 function doMonthlyReset() {
-  const now = new Date();
-  const monthKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  confirmAction('Monthly Reset',
-    "Clears this month's expense, income, fixed payment & investment log. Budget targets, assets, liabilities, and historical data are preserved.", () => {
-    const m = S.currentMonth;
-    S.expenses[m] = [];
-    S.incomes[m] = [];
-    S.fixedPayments[m] = [];
-    S.fundContribs[m] = [];
-    S.lastMonthlyReset = monthKey;
+  const now=new Date();
+  const mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  confirmAction('Monthly Reset',"Clears this month's expenses, income, transfers & investments. Budgets, assets, liabilities, and history are preserved.",()=>{
+    const m=S.currentMonth;
+    S.expenses[m]=[]; S.incomes[m]=[]; S.transfers[m]=[]; S.fundContribs[m]=[];
+    S.lastMonthlyReset=mk;
     save(); renderAll();
-    alert('✅ Month reset complete. Log cleared, budgets preserved.');
+    alert('✅ Month reset complete.');
   });
 }
 
@@ -3267,60 +3397,63 @@ function doMonthlyReset() {
 // FIRE CALCULATOR
 // ════════════════════════════════════════════════════════════
 function renderFireCalc() {
-  const el = document.getElementById('fire-calc-panel');
-  if (!el) return;
-  const corpus = (S.fireCorpus||6) * 10000000;
-  const fireYear = S.fireYear || 2040;
-  const retFund = S.funds.find(f => f.name.toLowerCase().includes('retire') || f.name.toLowerCase().includes('fire'));
-  const currentCorpus = retFund ? retFund.amt : 0;
-  const yearsLeft = Math.max(1, fireYear - new Date().getFullYear());
-  const monthsLeft = yearsLeft * 12;
-  const r = (S.fireReturn||12) / 100 / 12;
-  const fvCurrent = currentCorpus * Math.pow(1+r, monthsLeft);
-  const gap = Math.max(0, corpus - fvCurrent);
-  const monthlyNeeded = gap > 0 && r > 0 ? gap*r/(Math.pow(1+r,monthsLeft)-1) : gap/monthsLeft;
-  const passiveIncome = corpus * (S.fireReturn||12) / 100 / 12;
-  const sipGap = Math.max(0, Math.round(monthlyNeeded) - (S.sip||0));
-
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+  const el=document.getElementById('fire-calc-panel');
+  if(!el) return;
+  const corpus=(S.fireCorpus||6)*10000000;
+  const fireYear=S.fireYear||2040;
+  const retFund=S.funds.find(f=>f.name.toLowerCase().includes('retire')||f.name.toLowerCase().includes('fire'));
+  const cur=retFund?retFund.amt:0;
+  const yr=Math.max(1,fireYear-new Date().getFullYear());
+  const mo=yr*12;
+  const r=(S.fireReturn||12)/100/12;
+  const fv=cur*Math.pow(1+r,mo);
+  const gap=Math.max(0,corpus-fv);
+  const needed=gap>0&&r>0?gap*r/(Math.pow(1+r,mo)-1):gap/mo;
+  const passive=corpus*(S.fireReturn||12)/100/12;
+  const sipGap=Math.max(0,Math.round(needed)-(S.sip||0));
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div style="background:var(--s2);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Target Corpus</div>
+        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Target Corpus</div>
         <div style="font-size:18px;font-weight:700;color:var(--lilac-dark)">₹${S.fireCorpus||6}Cr</div>
         <div style="font-size:10px;color:var(--ink3)">by ${fireYear}</div>
       </div>
       <div style="background:var(--s2);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Current Corpus</div>
-        <div style="font-size:18px;font-weight:700;color:var(--sage-dark)">${fmt(currentCorpus)}</div>
-        <div style="font-size:10px;color:var(--ink3)">${retFund ? retFund.name : 'Tag a fund "Retirement"'}</div>
+        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Current Corpus</div>
+        <div style="font-size:18px;font-weight:700;color:var(--sage-dark)">${fmt(cur)}</div>
+        <div style="font-size:10px;color:var(--ink3)">${retFund?retFund.name:'Tag fund "Retirement"'}</div>
       </div>
       <div style="background:var(--s2);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Years Left</div>
-        <div style="font-size:18px;font-weight:700;color:var(--sky-dark)">${yearsLeft}y</div>
-        <div style="font-size:10px;color:var(--ink3)">${monthsLeft} months</div>
+        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Years Left</div>
+        <div style="font-size:18px;font-weight:700;color:var(--sky-dark)">${yr}y</div>
+        <div style="font-size:10px;color:var(--ink3)">${mo} months</div>
       </div>
       <div style="background:var(--s2);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Passive Income</div>
-        <div style="font-size:18px;font-weight:700;color:var(--mint-dark)">${fmt(Math.round(passiveIncome))}</div>
+        <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Passive Income</div>
+        <div style="font-size:18px;font-weight:700;color:var(--mint-dark)">${fmt(Math.round(passive))}</div>
         <div style="font-size:10px;color:var(--ink3)">per month at FIRE</div>
       </div>
     </div>
-    <div style="background:${sipGap > 0 ? 'var(--peach-bg)' : 'var(--sage-bg)'};border-radius:14px;padding:16px;margin-bottom:12px;border:0.5px solid ${sipGap > 0 ? 'rgba(184,116,64,.2)' : 'rgba(94,138,106,.2)'}">
-      <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Monthly retirement fund contribution needed</div>
-      <div style="font-size:26px;font-weight:700;letter-spacing:-.02em;color:${sipGap > 0 ? 'var(--peach-dark)' : 'var(--sage-dark)'}">${fmt(Math.round(monthlyNeeded))}<span style="font-size:13px;font-weight:500;color:var(--ink3)">/month</span></div>
-      <div style="font-size:12px;color:var(--ink2);margin-top:4px">at ${S.fireReturn||12}% p.a. to reach ₹${S.fireCorpus||6}Cr in ${yearsLeft} years</div>
-      ${sipGap > 0
-        ? `<div style="margin-top:10px;padding:9px 12px;background:var(--s1);border-radius:10px;font-size:12px;color:var(--peach-dark);font-weight:600">⚠ Current SIP ${fmt(S.sip||0)} · Need ${fmt(sipGap)} more/month allocated to retirement</div>`
-        : `<div style="margin-top:10px;padding:9px 12px;background:var(--s1);border-radius:10px;font-size:12px;color:var(--sage-dark);font-weight:600">✓ Your SIP covers this — allocate ${fmt(Math.round(monthlyNeeded))} to retirement fund manually in Log → Invest</div>`}
+    <div style="background:${sipGap>0?'var(--peach-bg)':'var(--sage-bg)'};border-radius:14px;padding:16px;margin-bottom:12px;border:.5px solid ${sipGap>0?'rgba(184,116,64,.2)':'rgba(94,138,106,.2)'}">
+      <div style="font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Monthly retirement fund contribution needed</div>
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.02em;color:${sipGap>0?'var(--peach-dark)':'var(--sage-dark)'}">${fmt(Math.round(needed))}<span style="font-size:13px;font-weight:500;color:var(--ink3)">/month</span></div>
+      <div style="font-size:12px;color:var(--ink2);margin-top:4px">at ${S.fireReturn||12}% p.a. to reach ₹${S.fireCorpus||6}Cr in ${yr} years</div>
+      ${sipGap>0
+        ?`<div style="margin-top:10px;padding:9px 12px;background:var(--s1);border-radius:10px;font-size:12px;color:var(--peach-dark);font-weight:600">⚠ Current SIP ${fmt(S.sip||0)} · Need ${fmt(sipGap)} more/month for retirement</div>`
+        :`<div style="margin-top:10px;padding:9px 12px;background:var(--s1);border-radius:10px;font-size:12px;color:var(--sage-dark);font-weight:600">✓ Allocate ${fmt(Math.round(needed))} to retirement fund in Log → Invest</div>`}
     </div>
-    <div style="font-size:11px;color:var(--ink3);line-height:1.6">
-      💡 Allocation is manual — log in <strong>Log → Invest</strong> tab. FV of current corpus: ${fmt(Math.round(fvCurrent))} · Gap: ${fmt(Math.round(gap))}
-    </div>`;
+    <div style="font-size:11px;color:var(--ink3);line-height:1.6">💡 Allocation is manual — log in <strong>Log → Invest</strong>. FV of current corpus: ${fmt(Math.round(fv))} · Gap: ${fmt(Math.round(gap))}</div>`;
 }
 
-// ════════════════════════════════════════════════════════════
-// CSV — include fixedPayments + fundContribs in export/import
-// ════════════════════════════════════════════════════════════
+// goalMonthsLeft uses real date
+function goalMonthsLeft(deadline) {
+  if(!deadline) return 0;
+  const [y,mo]=deadline.split('-').map(Number);
+  const target=new Date(y,mo-1,1);
+  const now=new Date(); now.setDate(1); now.setHours(0,0,0,0);
+  return Math.max(0,(target.getFullYear()-now.getFullYear())*12+(target.getMonth()-now.getMonth()));
+}
+
 buildPinPad();
 
 if (sessionStorage.getItem(SESSKEY) === '1') {
