@@ -912,7 +912,29 @@ select.input {
         </div>
       </div>
 
-      <!-- ⑦ BY CATEGORY -->
+      <!-- ⑦ CC PAYMENT -->
+      <div class="card">
+        <div class="sec-head" onclick="toggleSec('cc')">
+          <div class="sec-head-left">
+            <div class="sec-title">💳 CC Payment</div>
+            <div class="sec-meta" id="cc-meta">Log credit card bill payments</div>
+          </div>
+          <div class="sec-toggle" id="tog-cc">+</div>
+        </div>
+        <div class="sec-body shut" id="body-cc" style="max-height:0">
+          <div style="display:grid;gap:10px;margin-top:12px">
+            <input class="input" id="cc-card" placeholder="Card name (e.g. HDFC Regalia)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <input class="input" type="number" id="cc-amt" placeholder="₹ Amount paid" inputmode="decimal">
+              <input class="input" id="cc-note" placeholder="Note (optional)">
+            </div>
+            <button class="btn btn-primary" onclick="addCCPayment()" style="width:100%">+ Log CC payment</button>
+          </div>
+          <div id="cc-list" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ⑧ BY CATEGORY -->
       <div class="card">
         <div class="sec-head" onclick="toggleSec('bycat')">
           <div class="sec-head-left">
@@ -1304,6 +1326,7 @@ const DEFAULTS = {
   incomes: {},
   fixedPayments: {},
   fundContribs: {},
+  ccPayments: {},
   assets: [
     {id:1, name:'MF Investments (Vijaya)', amt:315065},
     {id:2, name:'MF Investments (Koko)', amt:307380},
@@ -1356,6 +1379,7 @@ try {
 Object.keys(DEFAULTS).forEach(k => { if (!(k in S)) S[k] = DEFAULTS[k]; });
 if (!S.fixedPayments) S.fixedPayments = {};
 if (!S.fundContribs) S.fundContribs = {};
+if (!S.ccPayments) S.ccPayments = {};
 
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
 
@@ -1431,17 +1455,17 @@ function bajajSim(bal, rate, pmt) {
     const int = b * r;
     ti += int;
     b = Math.max(0, b + int - pmt);
-    const d = new Date(2026, 4, 1);
+    const d = new Date(); d.setDate(1);
     d.setMonth(d.getMonth() + m - 1);
     sched.push({ m, bal: b, int, date: d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) });
   }
-  const cd = new Date(2026, 4, 1);
+  const cd = new Date(); cd.setDate(1);
   cd.setMonth(cd.getMonth() + m - 1);
   return { months: m, totalInt: ti, sched, clearedDate: m < 240 ? cd.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : null };
 }
 
 function addMonths(n) {
-  const d = new Date(2026, 4, 1);
+  const d = new Date(); d.setDate(1);
   d.setMonth(d.getMonth() + n);
   return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
 }
@@ -1776,10 +1800,12 @@ function renderLog() {
   const exps     = getMonthExps(m);
   const fps      = (S.fixedPayments||{})[m] || [];
   const contribs = (S.fundContribs||{})[m]  || [];
+  const ccs      = (S.ccPayments||{})[m]    || [];
   const incTotal = incomes.reduce((a,i)=>a+i.amt,0);
   const fpTotal  = fps.reduce((a,p)=>a+p.amt,0);
   const invTotal = contribs.reduce((a,c)=>a+c.amt,0);
   const expTotal = exps.reduce((a,e)=>a+e.amt,0);
+  const ccTotal2 = ccs.reduce((a,p)=>a+p.amt,0);
   const budgetFixed    = getFixedTotal();
   const budgetLifestyle= getLifestyleTotal();
   const budgetSIP      = S.sip||0;
@@ -1787,12 +1813,12 @@ function renderLog() {
   // ── ① CASHFLOW STATEMENT ──
   const cfMeta = document.getElementById('cf-meta');
   if(cfMeta) cfMeta.textContent =
-    incTotal>0 ? `In ${fmt(incTotal)}  ·  Out ${fmt(fpTotal+invTotal+expTotal)}  ·  Net ${fmt(incTotal-fpTotal-invTotal-expTotal)}` :
+    incTotal>0 ? `In ${fmt(incTotal)}  ·  Out ${fmt(fpTotal+invTotal+expTotal+ccTotal2)}  ·  Net ${fmt(incTotal-fpTotal-invTotal-expTotal-ccTotal2)}` :
     'Log income to see your money flow';
 
   const cfEl = document.getElementById('cf-statement');
   if(cfEl) {
-    const net = incTotal - fpTotal - invTotal - expTotal;
+    const net = incTotal - fpTotal - invTotal - expTotal - ccTotal2;
     const rows = [
       { icon:'💰', bg:'bg-sage',  sign:'+', label:'Income received',
         sub: incTotal>0 ? `${incomes.length} source${incomes.length!==1?'s':''}` : 'Log income above',
@@ -1815,6 +1841,10 @@ function renderLog() {
         amt:expTotal, color: expTotal>budgetLifestyle?'var(--rose-dark)':'var(--peach-dark)',
         bar: budgetLifestyle>0?Math.min(100,Math.round(expTotal/budgetLifestyle*100)):0,
         barColor: expTotal>budgetLifestyle?'var(--rose-dark)':'var(--peach-dark)' },
+      { icon:'💳', bg:'bg-sky', sign:'−', label:'CC payments',
+        sub: ccs.length ? `${ccs.length} payment${ccs.length!==1?'s':''}` : 'No CC payments logged',
+        amt:ccTotal2, color:'var(--sky-dark)',
+        bar: ccTotal2>0?100:0, barColor:'var(--sky-dark)', badge:'' },
     ];
     cfEl.innerHTML = rows.map(r=>`
       <div class="cf-row">
@@ -1939,7 +1969,27 @@ function renderLog() {
         <span>Total invested</span><span class="cg">${fmt(invTotal)}</span></div>`
     : '<div style="font-size:13px;color:var(--ink3);padding:6px 0">No investments logged this month</div>';
 
-  // ── ⑥ BY CATEGORY ──
+  // ── ⑥ CC PAYMENTS ──
+  const ccMeta = document.getElementById('cc-meta');
+  if(ccMeta) ccMeta.textContent = ccs.length
+    ? `${ccs.length} payment${ccs.length!==1?'s':''} · ${fmt(ccTotal2)} paid`
+    : 'Log credit card bill payments';
+  const ccList = document.getElementById('cc-list');
+  if(ccList) ccList.innerHTML = ccs.length
+    ? [...ccs].reverse().map(p=>`
+        <div class="income-row">
+          <span class="income-row-name">💳 ${p.card}${p.note?` <span style="font-size:11px;color:var(--ink3)">· ${p.note}</span>`:''}</span>
+          <span class="income-row-amt" style="color:var(--rose-dark)">${fmt(p.amt)}</span>
+          <button class="icon-btn danger" onclick="delCCPayment(${p.id})">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>`).join('') +
+      `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;border-top:.5px solid var(--hairline);margin-top:6px">
+        <span>Total CC paid</span><span style="color:var(--rose-dark)">${fmt(ccTotal2)}</span>
+      </div>`
+    : '<div style="font-size:13px;color:var(--ink3);padding:6px 0">No CC payments logged this month</div>';
+
+  // ── ⑦ BY CATEGORY ──
   const catTot={};
   exps.forEach(e=>{ catTot[e.catId]=(catTot[e.catId]||0)+e.amt; });
   const lb=document.getElementById('log-bars');
@@ -2072,7 +2122,7 @@ function goalMonthsLeft(deadline) {
   if (!deadline) return 0;
   const [y, m] = deadline.split('-').map(Number);
   const target = new Date(y, m - 1, 1);
-  const now = new Date(2026, 4, 1); // current "now" in app context
+  const now = new Date(); now.setDate(1); now.setHours(0,0,0,0);
   const diff = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
   return Math.max(0, diff);
 }
@@ -2494,7 +2544,7 @@ function renderMilestones() {
   const tl = [
     {
       icon: '🚀', bg: 'bg-rose',
-      when: 'Today — May 2026',
+      when: `Today — ${new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}`,
       event: 'Bajaj OD attack begins',
       detail: `Balance ${fmt(bajaj)} at ${S.bajajRate}% p.a. Paying ${fmt(S.bajajPmt)}/month. Monthly interest burning: ${fmt(bajaj * S.bajajRate / 100 / 12)}.`,
       pill: 'In progress', pillBg: 'bg-rose'
@@ -2965,6 +3015,19 @@ function exportData() {
     list.forEach(i => rows.push(['INCOME',`${m}-${i.id}`,i.source,'',i.amt,'',i.date||'',m]));
   });
 
+  // FIXED PAYMENTS
+  Object.entries(S.fixedPayments || {}).forEach(([m, list]) => {
+    list.forEach(p => rows.push(['FIXEDPAY',`${m}-${p.id}`,p.note||'','',p.amt,p.fixedId,p.date||'',m]));
+  });
+  // FUND CONTRIBS
+  Object.entries(S.fundContribs || {}).forEach(([m, list]) => {
+    list.forEach(p => rows.push(['FUNDCONTRIB',`${m}-${p.id}`,p.note||'','',p.amt,p.fundId,p.date||'',m]));
+  });
+  // CC PAYMENTS
+  Object.entries(S.ccPayments || {}).forEach(([m, list]) => {
+    list.forEach(p => rows.push(['CCPAY',`${m}-${p.id}`,p.card,'',p.amt,p.note||'',p.date||'',m]));
+  });
+
   const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -3048,6 +3111,21 @@ function handleCSVImport(event) {
             if (!newS.incomes[monthIdx]) newS.incomes[monthIdx] = [];
             const idParts = cols[1].split('-');
             newS.incomes[monthIdx].push({ id: parseInt(idParts[idParts.length-1]) || Date.now()+Math.random(), source: cols[2], amt: parseFloat(cols[4])||0, date: cols[6]||'' });
+          } else if (section === 'FIXEDPAY') {
+            const monthIdx = cols[7];
+            if (!newS.fixedPayments[monthIdx]) newS.fixedPayments[monthIdx] = [];
+            const idParts = cols[1].split('-');
+            newS.fixedPayments[monthIdx].push({ id: parseInt(idParts[idParts.length-1])||Date.now()+Math.random(), note:cols[2], amt:parseFloat(cols[4])||0, fixedId:parseInt(cols[5])||0, date:cols[6]||'' });
+          } else if (section === 'FUNDCONTRIB') {
+            const monthIdx = cols[7];
+            if (!newS.fundContribs[monthIdx]) newS.fundContribs[monthIdx] = [];
+            const idParts = cols[1].split('-');
+            newS.fundContribs[monthIdx].push({ id: parseInt(idParts[idParts.length-1])||Date.now()+Math.random(), note:cols[2], amt:parseFloat(cols[4])||0, fundId:parseInt(cols[5])||0, date:cols[6]||'' });
+          } else if (section === 'CCPAY') {
+            const monthIdx = cols[7];
+            if (!newS.ccPayments[monthIdx]) newS.ccPayments[monthIdx] = [];
+            const idParts = cols[1].split('-');
+            newS.ccPayments[monthIdx].push({ id: parseInt(idParts[idParts.length-1])||Date.now()+Math.random(), card:cols[2], amt:parseFloat(cols[4])||0, note:cols[5]||'', date:cols[6]||'' });
           }
         }
         S = newS;
@@ -3099,6 +3177,7 @@ function toggleSec(id) {
   if (!body) return;
   const isOpen = !body.classList.contains('shut');
   if (isOpen) {
+    // Capture height before closing
     body.style.maxHeight = body.scrollHeight + 'px';
     requestAnimationFrame(() => {
       body.style.maxHeight = '0';
@@ -3106,10 +3185,16 @@ function toggleSec(id) {
       if (tog) tog.textContent = '+';
     });
   } else {
+    // Must remove shut + temporarily allow auto height to measure scrollHeight
     body.classList.remove('shut');
-    body.style.maxHeight = body.scrollHeight + 'px';
-    if (tog) tog.textContent = '−';
-    setTimeout(() => { if (!body.classList.contains('shut')) body.style.maxHeight = ''; }, 350);
+    body.style.maxHeight = 'none';
+    const h = body.scrollHeight;
+    body.style.maxHeight = '0';
+    requestAnimationFrame(() => {
+      body.style.maxHeight = h + 'px';
+      if (tog) tog.textContent = '−';
+      setTimeout(() => { if (!body.classList.contains('shut')) body.style.maxHeight = ''; }, 350);
+    });
   }
 }
 
@@ -3181,6 +3266,34 @@ function delFundContrib(id) {
     const fund = S.funds.find(f => f.id === contrib.fundId);
     if (fund) fund.amt = Math.max(0, fund.amt - contrib.amt);
     S.fundContribs[m] = S.fundContribs[m].filter(c => c.id !== id);
+    save(); renderAll();
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// CC PAYMENTS (cashflow only)
+// ════════════════════════════════════════════════════════════
+function addCCPayment() {
+  const card = ((document.getElementById('cc-card')||{}).value||'').trim();
+  const amt  = parseFloat((document.getElementById('cc-amt')||{}).value);
+  const note = ((document.getElementById('cc-note')||{}).value||'').trim();
+  if (!card || !amt) return;
+  const m = S.currentMonth;
+  if (!S.ccPayments) S.ccPayments = {};
+  if (!S.ccPayments[m]) S.ccPayments[m] = [];
+  S.ccPayments[m].push({ id: Date.now(), card, amt, note,
+    date: new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'2-digit' }) });
+  const e1=document.getElementById('cc-card'); if(e1) e1.value='';
+  const e2=document.getElementById('cc-amt');  if(e2) e2.value='';
+  const e3=document.getElementById('cc-note'); if(e3) e3.value='';
+  save(); renderAll();
+}
+
+function delCCPayment(id) {
+  const m = S.currentMonth;
+  confirmAction('Delete CC payment?', 'Remove this credit card payment.', () => {
+    if (S.ccPayments && S.ccPayments[m])
+      S.ccPayments[m] = S.ccPayments[m].filter(p => p.id !== id);
     save(); renderAll();
   });
 }
