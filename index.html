@@ -95,6 +95,53 @@ body {
 }
 input, button, select, textarea { font-family: inherit; color: inherit; }
 
+
+/* ─── MONTHLY RESET CARD ──────────────────────────── */
+.reset-card {
+  border-radius: var(--r-md);
+  padding: 16px 18px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 14px;
+  border: 0.5px solid var(--border);
+}
+.reset-card.urgent {
+  background: linear-gradient(135deg, var(--rose-bg), #fff5f5);
+  border-color: rgba(184,101,96,.3);
+}
+.reset-card.soon {
+  background: linear-gradient(135deg, var(--peach-bg), #fff9f5);
+  border-color: rgba(184,116,64,.25);
+}
+.reset-card.calm {
+  background: linear-gradient(135deg, var(--sage-bg), #f5fbf7);
+  border-color: rgba(94,138,106,.2);
+}
+.reset-card-icon { font-size: 28px; flex-shrink: 0; }
+.reset-card-body { flex: 1; min-width: 0; }
+.reset-card-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.reset-card-sub { font-size: 12px; color: var(--ink2); }
+.reset-card-btn {
+  padding: 8px 14px; border-radius: 20px; border: none;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; font-family: inherit;
+  transition: all .15s var(--ease);
+}
+.reset-card-btn:active { transform: scale(.94); }
+.reset-card-btn.danger { background: var(--rose-dark); color: white; }
+.reset-card-btn.warn { background: var(--peach-dark); color: white; }
+.reset-card-btn.calm { background: var(--sage-dark); color: white; }
+
+/* ─── SPENT PCT BADGE ──────────────────────────── */
+.spent-pct-ring {
+  position: relative; width: 48px; height: 48px; flex-shrink: 0;
+}
+.spent-pct-ring svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+.spent-pct-ring .ring-bg { fill: none; stroke: var(--s3); stroke-width: 4; }
+.spent-pct-ring .ring-fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .6s var(--spring); }
+.spent-pct-label {
+  position: absolute; inset: 0; display: flex; align-items: center;
+  justify-content: center; font-size: 10px; font-weight: 700; letter-spacing: -.02em;
+}
+
 /* ─── LOCK SCREEN ──────────────────────────── */
 #lock {
   position: fixed; inset: 0; background: var(--bg);
@@ -661,6 +708,7 @@ select.input {
 
     <!-- ═══ DASHBOARD ═══ -->
     <div class="pnl on" id="pnl-dash">
+      <div id="dash-reset-card"></div>
       <div class="psych-banner">
         <div class="psych-eyebrow">Koko's Money Psychology</div>
         <div class="psych-title" id="psych-title">—</div>
@@ -680,8 +728,14 @@ select.input {
           <div class="stat-val cr" id="stat-bajaj">—</div>
           <div class="stat-sub" id="stat-bajaj-clears">—</div>
         </div>
-        <div class="stat">
-          <div class="stat-icon bg-peach">📊</div>
+        <div class="stat" style="position:relative">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+            <div class="stat-icon bg-peach" style="margin-bottom:0">📊</div>
+            <div class="spent-pct-ring" id="spent-ring-wrap">
+              <svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="20"/><circle class="ring-fill" id="spent-ring" cx="24" cy="24" r="20" stroke="var(--peach-dark)" stroke-dasharray="125.66" stroke-dashoffset="125.66"/></svg>
+              <div class="spent-pct-label" id="spent-ring-pct" style="color:var(--peach-dark)">0%</div>
+            </div>
+          </div>
           <div class="stat-label">Spent This Month</div>
           <div class="stat-val" id="stat-spent">—</div>
           <div class="stat-sub" id="stat-spent-vs">—</div>
@@ -718,6 +772,7 @@ select.input {
           <div class="card-title">This Month Spending</div>
           <span class="card-action" onclick="goTab('log')">Log expense →</span>
         </div>
+        <div id="dash-bars-summary" style="margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--hairline)"></div>
         <div id="dash-bars"></div>
       </div>
 
@@ -831,6 +886,9 @@ select.input {
           <button class="btn btn-primary btn-icon" onclick="addNW('liab')">+</button>
         </div>
       </div>
+      <!-- hidden inputs for drag-sort NW -->
+      <div id="nw-drag-assets-container" style="display:none"></div>
+      <div id="nw-drag-liab-container" style="display:none"></div>
     </div>
 
     <!-- ═══ PLAN ═══ -->
@@ -1058,6 +1116,17 @@ select.input {
         </div>
         <button class="btn btn-danger" onclick="confirmReset()" style="width:100%">Reset all data</button>
       </div>
+
+      <div class="setup-group">
+        <div class="setup-group-title">Monthly Reset</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px">
+          Monthly reset clears this month's expense log and income so you can start fresh. 
+          Budget targets, assets, liabilities, and historical data are <strong>preserved</strong>. 
+          Your log data is archived to history before clearing.
+        </div>
+        <button class="btn btn-primary" onclick="doMonthlyReset()" style="width:100%;margin-bottom:8px">🔄 Reset This Month's Log</button>
+        <div style="font-size:11px;color:var(--ink3);text-align:center">Does not auto-reset — you control when to start fresh each month</div>
+      </div>
     </div>
 
   </div>
@@ -1186,6 +1255,7 @@ const DEFAULTS = {
     {id:3, name:'Baby Fund', emoji:'🍼', amt:0, target:5000000, color:'peach'},
     {id:4, name:'Travel & Leisure', emoji:'✈️', amt:0, target:300000, color:'sky'},
   ],
+  lastMonthlyReset: null,
   // Lifestyle goals
   // Lifestyle goals
   goals: [
@@ -1481,10 +1551,28 @@ function renderDash() {
   document.getElementById('stat-bajaj-clears').textContent = sim.clearedDate ? `Clears ${sim.clearedDate}` : 'Recalculating';
   document.getElementById('stat-spent').textContent = fmt(spent);
   document.getElementById('stat-spent').style.color = spent > budget ? 'var(--rose-dark)' : 'var(--ink)';
-  document.getElementById('stat-spent-vs').textContent = `of ${fmt(budget)}`;
+  document.getElementById('stat-spent-vs').textContent = `of ${fmt(budget)} budget`;
   document.getElementById('stat-surplus').textContent = fmtSigned(surplus);
   document.getElementById('stat-surplus').style.color = surplus >= 0 ? 'var(--sage-dark)' : 'var(--rose-dark)';
   document.getElementById('stat-surplus-lbl').textContent = surplus >= 0 ? 'monthly surplus' : 'monthly DEFICIT';
+
+  // % ring for spent
+  const spentPct = budget > 0 ? Math.min(100, Math.round(spent / budget * 100)) : 0;
+  const circumference = 125.66;
+  const ringOffset = circumference - (circumference * spentPct / 100);
+  const ringEl = document.getElementById('spent-ring');
+  const ringLbl = document.getElementById('spent-ring-pct');
+  if (ringEl) {
+    ringEl.style.strokeDashoffset = ringOffset;
+    ringEl.style.stroke = spent > budget ? 'var(--rose-dark)' : spentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)';
+  }
+  if (ringLbl) {
+    ringLbl.textContent = spentPct + '%';
+    ringLbl.style.color = spent > budget ? 'var(--rose-dark)' : spentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)';
+  }
+
+  // Reset reminder card
+  renderResetCard();
 
   // Funds (4 named buckets)
   document.getElementById('dash-funds').innerHTML = S.funds.map(f => {
@@ -1564,16 +1652,32 @@ function renderDash() {
   getMonthExps(m).forEach(e => { catTot[e.catId] = (catTot[e.catId] || 0) + e.amt; });
   document.getElementById('dash-bars').innerHTML = S.cats.map(c => {
     const s = catTot[c.id] || 0;
-    const pct = Math.min(100, Math.round(s / c.budget * 100));
+    const pct = c.budget > 0 ? Math.min(100, Math.round(s / c.budget * 100)) : 0;
     const over = s > c.budget;
     return `<div class="bbar">
       <div class="bbar-head">
         <div class="bbar-name"><span class="bbar-emoji">${c.emoji}</span><span>${c.name}</span></div>
-        <div class="bbar-nums" style="color:${over ? 'var(--rose-dark)' : 'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bbar-nums" style="color:${over ? 'var(--rose-dark)' : 'var(--ink3)'}">${fmt(s)} / ${fmt(c.budget)}</div>
+          <div style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:${over ? 'var(--rose-bg)' : pct > 75 ? 'var(--peach-bg)' : 'var(--sage-bg)'};color:${over ? 'var(--rose-dark)' : pct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)'}">${pct}%</div>
+        </div>
       </div>
       <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${over ? 'var(--rose-dark)' : c.color}"></div></div>
     </div>`;
   }).join('');
+
+  // Overall spend summary bar
+  const summaryEl = document.getElementById('dash-bars-summary');
+  if (summaryEl) {
+    const totalSpentPct = budget > 0 ? Math.min(100, Math.round(spent / budget * 100)) : 0;
+    const remaining = Math.max(0, budget - spent);
+    summaryEl.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div style="font-size:13px;font-weight:700">Total: ${fmt(spent)} <span style="color:var(--ink3);font-weight:500">of ${fmt(budget)}</span></div>
+        <div style="font-size:12px;font-weight:700;color:${spent > budget ? 'var(--rose-dark)' : 'var(--sage-dark)'}">${totalSpentPct}% used · ${fmt(remaining)} left</div>
+      </div>
+      <div class="prog" style="height:10px"><div class="prog-fill" style="width:${totalSpentPct}%;background:${spent > budget ? 'var(--rose-dark)' : totalSpentPct > 75 ? 'var(--peach-dark)' : 'var(--sage-dark)'}"></div></div>`;
+  }
 
   // Net worth at bottom
   document.getElementById('hero-nw').textContent = fmtSigned(nw);
@@ -1672,7 +1776,7 @@ function addExp() {
   if (!S.expenses[S.currentMonth]) S.expenses[S.currentMonth] = [];
   S.expenses[S.currentMonth].push({
     id: Date.now(), name, catId, amt,
-    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
   });
   save();
   document.getElementById('l-name').value = '';
@@ -1688,7 +1792,7 @@ function addIncome() {
   if (!S.incomes[S.currentMonth]) S.incomes[S.currentMonth] = [];
   S.incomes[S.currentMonth].push({
     id: Date.now(), source, amt,
-    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
   });
   save();
   document.getElementById('inc-source').value = '';
@@ -1888,7 +1992,7 @@ function renderNetWorth() {
   document.getElementById('nw-assets-total').textContent = fmt(ta);
   document.getElementById('nw-liab-total').textContent = fmt(tl);
 
-  const makeNwList = (items, type) => items.map((it, idx) => {
+  const makeNwList = (items, type) => items.map((it) => {
     const typeSelect = type === 'liab' ? `
         <select class="input" style="width:80px;font-size:11px;padding:5px 8px;background:var(--s2)" onchange="updNW('liab',${it.id},'type',this.value)">
           <option value="bajaj" ${it.type==='bajaj'?'selected':''}>Bajaj</option>
@@ -1896,14 +2000,9 @@ function renderNetWorth() {
           <option value="car" ${it.type==='car'?'selected':''}>Car</option>
           <option value="other" ${(it.type==='other'||!it.type)?'selected':''}>Other</option>
         </select>` : '';
-    return `<div class="row" data-id="${it.id}">
-      <div class="row-actions">
-        <button class="icon-btn" onclick="moveItem('${type}',${it.id},-1)" ${idx === 0 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-        </button>
-        <button class="icon-btn" onclick="moveItem('${type}',${it.id},1)" ${idx === items.length - 1 ? 'style="opacity:.3;pointer-events:none"' : ''}>
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+    return `<div class="row drag-row" data-id="${it.id}" draggable="true">
+      <div class="drag-handle" title="Drag to reorder">
+        <svg viewBox="0 0 14 14"><circle cx="4" cy="3" r="1.1"/><circle cx="10" cy="3" r="1.1"/><circle cx="4" cy="7" r="1.1"/><circle cx="10" cy="7" r="1.1"/><circle cx="4" cy="11" r="1.1"/><circle cx="10" cy="11" r="1.1"/></svg>
       </div>
       <div class="row-body" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <input class="editable-name" value="${it.name}" onblur="updNW('${type}',${it.id},'name',this.value)" style="min-width:80px">
@@ -1918,6 +2017,11 @@ function renderNetWorth() {
 
   document.getElementById('nw-assets-list').innerHTML = makeNwList(S.assets, 'asset');
   document.getElementById('nw-liab-list').innerHTML = makeNwList(S.liabilities, 'liab');
+  // Init drag sort for both lists
+  setTimeout(() => {
+    initDragSort('nw-assets-list', 'asset');
+    initDragSort('nw-liab-list', 'liab');
+  }, 0);
 }
 
 function updNW(type, id, field, val) {
@@ -1993,7 +2097,7 @@ function initDragSort(containerId, listType) {
     rows().forEach(r => r.classList.remove('drag-over'));
     // Reorder in state
     const getId = el => parseInt(el.dataset.id);
-    const list = listType === 'fixed' ? S.fixed : S.cats;
+    const list = listType === 'fixed' ? S.fixed : listType === 'cat' ? S.cats : listType === 'asset' ? S.assets : listType === 'liab' ? S.liabilities : listType === 'fund' ? S.funds : S.cats;
     const fromIdx = list.findIndex(x => x.id === getId(dragSrc));
     const toIdx   = list.findIndex(x => x.id === getId(target));
     if (fromIdx === -1 || toIdx === -1) return;
@@ -2050,7 +2154,7 @@ function initDragSort(containerId, listType) {
     // Reorder if dropped on a different row
     if (target && target !== touchDragRow) {
       const getId = el => parseInt(el.dataset.id);
-      const list = listType === 'fixed' ? S.fixed : S.cats;
+      const list = listType === 'fixed' ? S.fixed : listType === 'cat' ? S.cats : listType === 'asset' ? S.assets : listType === 'liab' ? S.liabilities : listType === 'fund' ? S.funds : S.cats;
       const fromIdx = list.findIndex(x => x.id === getId(touchDragRow));
       const toIdx   = list.findIndex(x => x.id === getId(target));
       if (fromIdx !== -1 && toIdx !== -1) {
@@ -2431,6 +2535,7 @@ function renderSetup() {
       </div>
     </div>
   `).join('');
+  setTimeout(() => initDragSort('funds-list', 'fund'), 0);
 }
 
 function updFund(id, field, val) {
@@ -2521,62 +2626,124 @@ function renderTrends() {
   document.getElementById('tr-lowest').textContent = fmt(lowest.total);
   document.getElementById('tr-lowest-when').textContent = lowest.label;
 
-  // Monthly chart - last 12 months as bars
+  // Monthly chart - last 12 months as SVG LINE chart
   const recent = months.slice(-12);
-  const maxVal = Math.max(...recent.map(m => m.total));
+  const maxVal = Math.max(...recent.map(m => m.total), 1);
+  const minVal = Math.min(...recent.map(m => m.total));
+  const chartW = 320, chartH = 160, padL = 42, padR = 12, padT = 24, padB = 28;
+  const innerW = chartW - padL - padR;
+  const innerH = chartH - padT - padB;
+  const n = recent.length;
+  const xStep = n > 1 ? innerW / (n - 1) : innerW;
+  const yRange = maxVal - minVal || 1;
+
+  const toX = i => padL + (n > 1 ? i * xStep : innerW / 2);
+  const toY = v => padT + innerH - ((v - minVal) / yRange) * innerH;
+
+  // Build smooth polyline points
+  const pts = recent.map((m, i) => `${toX(i).toFixed(1)},${toY(m.total).toFixed(1)}`).join(' ');
+
+  // Y-axis labels (3 ticks)
+  const yTicks = [minVal, (minVal + maxVal) / 2, maxVal];
+  const yTicksHtml = yTicks.map(v => {
+    const y = toY(v);
+    return `<text x="${padL - 6}" y="${y + 4}" font-size="9" fill="var(--ink3)" text-anchor="end" font-family="Helvetica,Arial,sans-serif">₹${(v/1000).toFixed(0)}k</text>
+    <line x1="${padL}" y1="${y}" x2="${chartW - padR}" y2="${y}" stroke="var(--hairline)" stroke-width="1"/>`;
+  }).join('');
+
+  // X labels
+  const xLabelsHtml = recent.map((m, i) => {
+    const x = toX(i);
+    return `<text x="${x}" y="${chartH - 6}" font-size="9" fill="var(--ink3)" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">${m.label.slice(0,3)}</text>`;
+  }).join('');
+
+  // Dots with amount labels
+  const dotsHtml = recent.map((m, i) => {
+    const x = toX(i);
+    const y = toY(m.total);
+    const isHigh = m.total === maxVal;
+    const dotColor = isHigh ? 'var(--rose-dark)' : m.source === 'live' ? 'var(--sage-dark)' : 'var(--sky-dark)';
+    const isLast = i === recent.length - 1;
+    const showLabel = isHigh || isLast || (i === 0);
+    const labelY = y < padT + 16 ? y + 18 : y - 8;
+    return `<circle cx="${x}" cy="${y}" r="${isHigh || isLast ? 5 : 3.5}" fill="${dotColor}" stroke="var(--s1)" stroke-width="1.5"/>
+    ${showLabel ? `<text x="${x}" y="${labelY}" font-size="9" fill="${dotColor}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="700">₹${(m.total/1000).toFixed(0)}k</text>` : ''}`;
+  }).join('');
+
+  // Gradient fill under line
+  const fillPts = `${toX(0).toFixed(1)},${(padT+innerH).toFixed(1)} ` + pts + ` ${toX(n-1).toFixed(1)},${(padT+innerH).toFixed(1)}`;
+
   document.getElementById('tr-monthly-chart').innerHTML = `
-    <div style="display:flex;align-items:flex-end;gap:6px;height:160px;padding:8px 0 4px;border-bottom:0.5px solid var(--hairline)">
-      ${recent.map(m => {
-        const pct = (m.total / maxVal) * 100;
-        const isHigh = m.total === maxVal;
-        const color = isHigh ? 'var(--rose-dark)' : m.source === 'live' ? 'var(--sage-dark)' : 'var(--sky-dark)';
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">
-          <div style="font-size:9px;color:var(--ink3);font-weight:600;white-space:nowrap">₹${(m.total/1000).toFixed(0)}k</div>
-          <div style="width:100%;height:${Math.max(2,pct)}%;background:${color};border-radius:4px 4px 0 0;transition:height .6s var(--spring)"></div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div style="display:flex;gap:6px;padding-top:6px">
-      ${recent.map(m => `<div style="flex:1;font-size:10px;color:var(--ink3);text-align:center;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.label}</div>`).join('')}
-    </div>
-    <div style="display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--ink3);justify-content:center;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;background:var(--sky-dark);border-radius:2px"></span> Historical</div>
-      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;background:var(--sage-dark);border-radius:2px"></span> Logged here</div>
-      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;background:var(--rose-dark);border-radius:2px"></span> Highest</div>
+    <svg viewBox="0 0 ${chartW} ${chartH}" width="100%" style="overflow:visible;display:block">
+      <defs>
+        <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--sky-dark)" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="var(--sky-dark)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${yTicksHtml}
+      <polygon points="${fillPts}" fill="url(#lineGrad)"/>
+      <polyline points="${pts}" fill="none" stroke="var(--sky-dark)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dotsHtml}
+      ${xLabelsHtml}
+    </svg>
+    <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--ink3);justify-content:center;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:2px;background:var(--sky-dark);display:inline-block"></span> Historical</div>
+      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;background:var(--sage-dark);border-radius:50%;display:inline-block"></span> Logged here</div>
+      <div style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;background:var(--rose-dark);border-radius:50%;display:inline-block"></span> Highest</div>
     </div>`;
 
-  // Category trends (last 6 months)
+  // Category trends (last 6 months) — SVG line charts with amounts
   const last6m = months.slice(-6);
   document.getElementById('tr-cat-trends').innerHTML = S.cats.map(c => {
     const series = last6m.map(m => m.byCategory[c.id] || 0);
     const total = series.reduce((a,b)=>a+b, 0);
+    if (total === 0) return '';
     const avg = total / Math.max(1, series.length);
-    const lastVal = series[series.length-1] || 0;
     const firstHalf = series.slice(0, Math.floor(series.length/2));
     const secondHalf = series.slice(Math.floor(series.length/2));
     const firstAvg = firstHalf.length ? firstHalf.reduce((a,b)=>a+b,0)/firstHalf.length : 0;
     const secondAvg = secondHalf.length ? secondHalf.reduce((a,b)=>a+b,0)/secondHalf.length : 0;
     const trendPct = firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg * 100) : 0;
     const maxV = Math.max(...series, 1);
-    return `<div style="padding:10px 0;border-bottom:0.5px solid var(--hairline)">
+    const minV = Math.min(...series);
+    const cW = 280, cH = 64, pL = 0, pR = 0, pT = 14, pB = 16;
+    const iW = cW - pL - pR, iH = cH - pT - pB;
+    const n2 = series.length;
+    const xS = n2 > 1 ? iW / (n2 - 1) : iW;
+    const yR = maxV - minV || 1;
+    const tx = i => pL + (n2 > 1 ? i * xS : iW/2);
+    const ty = v => pT + iH - ((v - minV) / yR) * iH;
+    const pts2 = series.map((v,i) => `${tx(i).toFixed(1)},${ty(v).toFixed(1)}`).join(' ');
+    const fillPts2 = `${tx(0).toFixed(1)},${(pT+iH).toFixed(1)} ` + pts2 + ` ${tx(n2-1).toFixed(1)},${(pT+iH).toFixed(1)}`;
+    const dotsHtml2 = series.map((v,i) => {
+      const x2 = tx(i), y2 = ty(v);
+      const isLast = i === series.length - 1;
+      const labelY2 = y2 < pT + 12 ? y2 + 14 : y2 - 4;
+      return `<circle cx="${x2}" cy="${y2}" r="${isLast ? 4 : 2.5}" fill="${c.color}" stroke="white" stroke-width="1.2"/>
+      <text x="${x2}" y="${labelY2}" font-size="9" fill="${c.color}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="600">₹${(v/1000).toFixed(0)}k</text>`;
+    }).join('');
+    const xLabels2 = last6m.map((m,i) => `<text x="${tx(i)}" y="${cH}" font-size="9" fill="var(--ink3)" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">${m.label.slice(0,3)}</text>`).join('');
+
+    return `<div style="padding:12px 0;border-bottom:0.5px solid var(--hairline)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
           <span>${c.emoji}</span><span>${c.name}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-family:monospace;font-size:11px;color:var(--ink3)">avg ${fmt(avg)}</span>
-          ${trendPct === 0 ? '<span style="font-size:10px;color:var(--ink3)">—</span>' :
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--ink3)">avg ${fmt(avg)}</span>
+          ${trendPct === 0 ? '<span style="font-size:10px;color:var(--ink3)">stable</span>' :
             trendPct > 10 ? `<span class="cr" style="font-size:10px;font-weight:700">▲ ${trendPct.toFixed(0)}%</span>` :
             trendPct < -10 ? `<span class="cg" style="font-size:10px;font-weight:700">▼ ${Math.abs(trendPct).toFixed(0)}%</span>` :
             '<span style="font-size:10px;color:var(--ink3)">stable</span>'}
         </div>
       </div>
-      <div style="display:flex;align-items:flex-end;gap:3px;height:40px">
-        ${series.map(v => `<div style="flex:1;height:${Math.max(3, (v/maxV)*100)}%;background:${c.color};opacity:.75;border-radius:2px"></div>`).join('')}
-      </div>
-      <div style="display:flex;gap:3px;margin-top:3px">
-        ${last6m.map(m => `<div style="flex:1;font-size:9px;color:var(--ink3);text-align:center;white-space:nowrap;overflow:hidden">${m.label.slice(0,3)}</div>`).join('')}
-      </div>
+      <svg viewBox="0 0 ${cW} ${cH}" width="100%" style="overflow:visible;display:block">
+        <polygon points="${fillPts2}" fill="${c.color}" opacity="0.12"/>
+        <polyline points="${pts2}" fill="none" stroke="${c.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        ${dotsHtml2}
+        ${xLabels2}
+      </svg>
     </div>`;
   }).join('');
 
@@ -2797,6 +2964,81 @@ function renderAll() {
 // ════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════
+// MONTHLY RESET
+// ════════════════════════════════════════════════════════════
+function renderResetCard() {
+  const el = document.getElementById('dash-reset-card');
+  if (!el) return;
+  const now = new Date();
+  const dayOfMonth = now.getDate();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daysToMonthEnd = daysInMonth - dayOfMonth;
+  const lastReset = S.lastMonthlyReset || null;
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const alreadyResetThisMonth = lastReset === currentMonthKey;
+
+  if (dayOfMonth === 1 && !alreadyResetThisMonth) {
+    // 1st of month — urgent "Reset Now" alert
+    el.innerHTML = `<div class="reset-card urgent">
+      <div class="reset-card-icon">🔄</div>
+      <div class="reset-card-body">
+        <div class="reset-card-title" style="color:var(--rose-dark)">New month — Reset now!</div>
+        <div class="reset-card-sub">Clear last month's log to start fresh</div>
+      </div>
+      <button class="reset-card-btn danger" onclick="doMonthlyReset()">Reset now</button>
+    </div>`;
+  } else if (alreadyResetThisMonth) {
+    // Already reset — calm confirmation
+    el.innerHTML = `<div class="reset-card calm">
+      <div class="reset-card-icon">✅</div>
+      <div class="reset-card-body">
+        <div class="reset-card-title" style="color:var(--sage-dark)">Month reset done</div>
+        <div class="reset-card-sub">${daysToMonthEnd} days left in ${now.toLocaleDateString('en-IN', {month:'long'})}</div>
+      </div>
+    </div>`;
+  } else if (daysToMonthEnd <= 5) {
+    // Near end of month — prompt soon
+    el.innerHTML = `<div class="reset-card soon">
+      <div class="reset-card-icon">📅</div>
+      <div class="reset-card-body">
+        <div class="reset-card-title" style="color:var(--peach-dark)">${daysToMonthEnd} days to month end</div>
+        <div class="reset-card-sub">Ready to reset? Budget targets are preserved</div>
+      </div>
+      <button class="reset-card-btn warn" onclick="doMonthlyReset()">Reset early</button>
+    </div>`;
+  } else {
+    // Normal — show days remaining
+    el.innerHTML = `<div class="reset-card calm">
+      <div class="reset-card-icon">📆</div>
+      <div class="reset-card-body">
+        <div class="reset-card-title" style="color:var(--sage-dark)">${daysToMonthEnd} days to month reset</div>
+        <div class="reset-card-sub">Reset clears log · keeps budgets & history</div>
+      </div>
+      <button class="reset-card-btn calm" onclick="doMonthlyReset()" style="background:var(--s3);color:var(--ink2)">Reset</button>
+    </div>`;
+  }
+}
+
+function doMonthlyReset() {
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  confirmAction(
+    'Monthly Reset',
+    'This clears this month\'s expense & income log to start fresh. Budget targets, assets, liabilities, historical data — all preserved.',
+    () => {
+      // Clear current month's live expenses and incomes (index 0 = current month)
+      S.expenses[S.currentMonth] = [];
+      S.incomes[S.currentMonth] = [];
+      S.lastMonthlyReset = currentMonthKey;
+      save();
+      renderAll();
+      alert('✅ Month reset! Log cleared. Budgets and history preserved.');
+    }
+  );
+}
+
 buildPinPad();
 
 if (sessionStorage.getItem(SESSKEY) === '1') {
